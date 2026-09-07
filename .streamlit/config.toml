@@ -1,0 +1,25 @@
+# Streamlit configuration for the dashboard.
+#
+# Two palettes are defined: [theme] is light, [theme.dark] is dark. With no
+# forced `base`, Streamlit follows the OS preference; the in-app sidebar switch
+# ("System / Light / Dark") overrides it, and the built-in switcher in the
+# toolbar menu stays available as a fallback.
+
+[theme]
+primaryColor = "#1c64f2"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f4f6fa"
+textColor = "#1f2430"
+font = "sans serif"
+
+[theme.dark]
+primaryColor = "#5b9bff"
+backgroundColor = "#0e1117"
+secondaryBackgroundColor = "#1a1f2b"
+textColor = "#e8eaed"
+
+[client]
+toolbarMode = "viewer"
+
+[browser]
+gatherUsageStats = false

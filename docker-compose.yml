@@ -1,0 +1,51 @@
+# Two services on the same Docker network:
+#   - api      -> FastAPI on port 8000
+#   - frontend -> Streamlit on port 8501, talks to the API via the "api" hostname
+#
+# Everything runs inside containers: nothing is installed on your machine.
+# "docker compose down" removes the processes and the libraries; the data
+# persists in the "todo-data" volume.
+
+services:
+  api:
+    build: .
+    image: proyecto2-todo
+    container_name: proyecto2-api
+    command: python -m uvicorn api.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    environment:
+      TODOS_DB: /app/data/todos.db
+    volumes:
+      - todo-data:/app/data
+      - ./api:/app/api
+      - ./tests:/app/tests
+      # mounted so `run.ps1 test` sees the current front-end code (its unit
+      # tests run in this container); unused by the API at runtime
+      - ./frontend:/app/frontend
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/').status == 200 else 1)"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+
+  frontend:
+    build: .
+    image: proyecto2-todo
+    container_name: proyecto2-frontend
+    command: python -m streamlit run frontend/streamlit_app.py --server.port 8501 --server.address 0.0.0.0 --server.headless true --browser.gatherUsageStats false
+    ports:
+      - "8501:8501"
+    environment:
+      API_URL: http://api:8000/api
+    volumes:
+      - ./frontend:/app/frontend
+      - ./.streamlit:/app/.streamlit
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  todo-data:

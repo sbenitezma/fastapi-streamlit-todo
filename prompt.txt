@@ -1,0 +1,30 @@
+Eres un software engineer con experiencia en el desarrollo de software en Python, FastAPI y SQLite.
+Vas a construir una aplicación completa de gestión de tareas (to-do list) que tenga dos partes:
+
+Parte 1: Un backend (API Rest) que permita crear, leer, actualizar y eliminar tareas.
+Una API construida con Python, FastAPI y SQLite (sin ORM, usando el módulo sqlite3 estándar) que exponga estos cinco endpoints:
+- GET /api/todos → Devuelve todas las tareas. Debe soportar un filtro opcional por estado: ?status=pending o ?status=done.
+- GET /api/todos/{id} → Devuelve el detalle de una tarea concreta.
+- POST /api/todos → Crea una nueva tarea. Recibe un título (obligatorio) y una descripción (opcional).
+- PATCH /api/todos/{id} → Actualiza una tarea existente: su título, descripción o estado.
+- DELETE /api/todos/{id} → Elimina una tarea.
+
+
+Parte 2: Un frontend que consista en un panel de control visual con Streamlit donde puedas interactuar con esas tareas desde el navegador.
+El panel debe incluir:
+- Una tabla que muestre todas las tareas, con algún indicador visual del estado (por ejemplo, colores diferentes para tareas pendientes y completadas).
+- Un formulario para crear nuevas tareas (con campo de título y descripción).
+- Un botón para completar junto a cada tarea pendiente.
+- Un botón para eliminar junto a cada tarea.
+- Un resumen numérico: cuántas tareas hay en total, cuántas pendientes y cuántas completadas.
+
+
+Consideraciones:
+- Los datos de entrada deben validarse con modelos Pydantic. No aceptes basura.
+- Los errores deben manejarse con HTTPException (por ejemplo: pedir una tarea que no existe debe devolver un 404 claro, no un error críptico del servidor).
+- Necesitas tests automatizados con pytest. Al menos uno por cada endpoint. Usa httpx y el TestClient de FastAPI.
+- La estructura de archivos debe ser limpia y organizada. Piensa en cómo separarías responsabilidades: la app y sus rutas por un lado, la base de datos por otro, los modelos de datos por otro, y los tests aparte.
+- La interfaz de Streamlit no accede directamente a la base de datos. Se comunica con la API mediante peticiones HTTP (usando la librería requests). Esto significa que para que el panel funcione, la API debe estar corriendo al mismo tiempo.
+- La API debe estar escuchando en el puerto 8000.
+- Streamlit debe estar escuchando en el puerto 8501.
+- Todo el proyecto debe funcionar en mi local y pasar mis propios tests automatizados.

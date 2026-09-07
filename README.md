@@ -1,0 +1,224 @@
+# Task Manager — FastAPI + SQLite + Streamlit
+
+A complete to-do list application in two independent parts:
+
+- **REST API** (FastAPI + standard `sqlite3`, no ORM) — port **8000**.
+- **Dashboard** (Streamlit) that consumes the API over HTTP — port **8501**.
+
+The dashboard **never** touches the database: it talks to the API through `requests`.
+
+Everything runs inside **Docker**: you do not need to install Python or any
+library on your machine. Once the containers are stopped, nothing is left installed.
+
+## Layout
+
+```
+proyecto_2/
+├── api/
+│   ├── main.py        # FastAPI app + startup
+│   ├── routes.py      # the 5 endpoints
+│   ├── database.py    # SQLite access (connection, schema, CRUD)
+│   └── models.py      # Pydantic models (validation)
+├── frontend/
+│   ├── streamlit_app.py   # entry point: wires the modules together
+│   ├── app/
+│   │   ├── config.py      # constants and option maps
+│   │   ├── api_client.py  # the only outward boundary (HTTP to the API)
+│   │   ├── formatting.py  # pure task -> string helpers      (unit tested)
+│   │   ├── tasks.py       # pure list/dict transforms         (unit tested)
+│   │   ├── filtering.py   # Filters value object + parsing    (unit tested)
+│   │   ├── filters.py     # inline filter bar + chips (Streamlit)
+│   │   ├── styles.py      # global CSS
+│   │   ├── theme.py       # Light / Dark / System switch
+│   │   └── views/         # sidebar, summary, task_list rendering
+│   └── tests/             # unit tests for the pure modules + api_client
+├── .streamlit/
+│   └── config.toml    # dashboard light & dark palettes, toolbar mode
+├── tests/
+│   ├── conftest.py    # temporary database isolated per test
+│   └── test_todos.py  # >=1 test per endpoint
+├── Dockerfile
+├── docker-compose.yml
+├── run.ps1 / run.bat  # startup script (see below)
+├── requirements.txt
+└── pytest.ini
+```
+
+## Only requirement
+
+**Docker Desktop** installed and running (green icon, "Engine running").
+Download: https://www.docker.com/products/docker-desktop/
+
+You do not need Python or `pip` locally.
+
+### First time on Windows Home: enable WSL 2
+
+On Windows 11 Home, Docker Desktop needs the **WSL 2** backend. If opening Docker
+Desktop shows *"Virtualization support not detected"*, it still has to be enabled:
+
+1. Double-click **`setup-requirements.bat`** (it will ask for administrator rights).
+2. **Reboot** the computer.
+3. Open Docker Desktop and wait for "Engine running".
+
+This is a one-time step. It requires hardware virtualization (VT-x) to be enabled
+in the BIOS/UEFI, which it usually already is.
+
+## Quick start
+
+From PowerShell, in the project folder:
+
+```powershell
+.\run.ps1 start
+```
+
+Or just **double-click `run.bat`**.
+
+Then open in your browser:
+
+| What | URL |
+|------|-----|
+| Dashboard (Streamlit) | http://localhost:8501 |
+| API (FastAPI)         | http://localhost:8000 |
+| API docs              | http://localhost:8000/docs |
+
+## Script commands
+
+| Command | What it does |
+|---------|--------------|
+| `.\run.ps1 start`   | Build if needed and start API + dashboard in the background |
+| `.\run.ps1 stop`    | Stop the containers (data is kept) |
+| `.\run.ps1 restart` | `stop` + `start` |
+| `.\run.ps1 rebuild` | Rebuild the image from scratch |
+| `.\run.ps1 logs`    | Live logs (Ctrl+C to exit) |
+| `.\run.ps1 status`  | Container status |
+| `.\run.ps1 test`    | Run `pytest` inside a container |
+| `.\run.ps1 shell`   | Open a shell inside the API container |
+| `.\run.ps1 clean`   | Stop everything and **also delete the data volume** (asks for confirmation) |
+| `.\run.ps1 help`    | Help |
+
+`run.bat` accepts the same: `run.bat stop`, `run.bat logs`, etc. With no argument it starts.
+
+## Data
+
+The SQLite database lives in the Docker volume `todo-data` (mounted at
+`/app/data/todos.db` inside the container). It survives `stop`, `restart` and
+`rebuild`. Only `clean` removes it.
+
+## Tests
+
+```powershell
+.\run.ps1 test
+```
+
+Runs `pytest` over both suites inside a container:
+
+- **`tests/`** — the API. Each test uses its own temporary SQLite database.
+- **`frontend/tests/`** — the dashboard's pure modules (`api_client` with the
+  HTTP layer mocked, `formatting`, `tasks`, `filtering`). No server needed.
+
+## Endpoints
+
+| Method | Path                  | Description                                         |
+|--------|-----------------------|----------------------------------------------------|
+| GET    | `/api/todos`          | List tasks. Supports `status` and a date range (see below) |
+| GET    | `/api/todos/{id}`     | Details of a single task (404 if not found)         |
+| POST   | `/api/todos`          | Create a task. `title` required; `description` and `created_at` optional |
+| PATCH  | `/api/todos/{id}`     | Update `title`, `description` and/or `status`       |
+| DELETE | `/api/todos/{id}`     | Delete a task (404 if not found)                    |
+
+### `POST /api/todos` body
+
+| Field        | Required | Notes |
+|--------------|----------|-------|
+| `title`      | yes | 1–200 chars, not blank. |
+| `description`| no  | up to 2000 chars. |
+| `created_at` | no  | `YYYY-MM-DD` to record a past task. Defaults to now; a future date returns `422`. |
+
+### `GET /api/todos` query parameters
+
+| Parameter    | Values | Description |
+|--------------|--------|-------------|
+| `status`     | `pending` \| `done` | Filter by status. |
+| `date_field` | `created` \| `updated` \| `completed` (default `created`) | Which timestamp the date range applies to. |
+| `date_from`  | `YYYY-MM-DD` | Inclusive lower bound on `date_field`. |
+| `date_to`    | `YYYY-MM-DD` | Inclusive upper bound on `date_field`. |
+
+Example: `GET /api/todos?status=done&date_field=completed&date_from=2026-09-01`.
+Malformed dates return `422`.
+
+### Task model
+
+```json
+{
+  "id": 1,
+  "title": "Buy bread",
+  "description": "From the corner bakery",
+  "status": "pending",
+  "created_at": "2026-09-07T10:00:00+00:00",
+  "updated_at": "2026-09-07T10:00:00+00:00",
+  "completed_at": null
+}
+```
+
+`status` can only be `pending` or `done`. `completed_at` is set automatically when
+a task first becomes `done` and cleared when it is reopened — it is never sent by
+the client. Empty or blank titles are rejected with `422`; a `PATCH` with no
+fields returns `400`.
+
+## Filtering the list
+
+The filter controls sit **above the list**, next to the count they change:
+
+- an inline **status** control (All / Pending / Done);
+- a **Filters** popover for the date range (which timestamp, From, To);
+- **removable chips** for every active filter, plus **Clear all**.
+
+The selection is mirrored to the URL (`?status=…&date_from=…`), so a filtered
+view is shareable and survives a reload.
+
+## Theme
+
+A **System / Light / Dark** switch sits at the top of the sidebar. It drives
+Streamlit's native theming (so every widget is themed consistently) and mirrors
+the choice to the URL (`?theme=`) so it survives reloads. The built-in switcher
+in the toolbar menu stays available too. Both palettes are defined in
+`.streamlit/config.toml`.
+
+## Accessibility
+
+The dashboard styles target WCAG 2.1 AA:
+
+- Task status is encoded **three ways** — a text label ("Pending" / "Done"), an
+  icon, and a coloured card edge — never colour alone.
+- All colour pairs (badges, muted text) meet the 4.5:1 contrast ratio and were
+  verified in both light and dark themes (measured 6.5–9.7:1).
+- A strong, always-visible **keyboard focus ring** on every control.
+- Click/tap targets are at least ~40 px tall.
+- `prefers-reduced-motion` disables transitions and animations.
+- Destructive actions (delete) ask for confirmation first.
+- Task text is HTML-escaped before rendering.
+- Headings follow a sane order (`h1` → `h2`); the page declares `lang="en"`.
+- The "Created on" picker blocks future dates; the API rejects them as well.
+
+Known limitation: Streamlit does not emit a `<main>` landmark, which is outside
+the app's control.
+
+## Running without Docker (optional)
+
+If you ever want to run it without containers you will need Python and the
+dependencies. To keep your machine clean, use a virtual environment:
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python -m api.main                          # API on :8000
+streamlit run frontend/streamlit_app.py     # dashboard on :8501 (separate terminal)
+```
+
+Deleting the `.venv` folder leaves the machine clean again.
+
+## Environment configuration
+
+- `TODOS_DB` — path of the API's SQLite file (Docker sets it to `/app/data/todos.db`).
+- `API_URL` — base URL of the API used by the dashboard (Docker sets it to `http://api:8000/api`).
