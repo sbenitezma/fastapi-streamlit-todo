@@ -21,17 +21,22 @@ proyecto_2/
 │   └── models.py      # Pydantic models (validation)
 ├── frontend/
 │   ├── streamlit_app.py   # entry point: wires the modules together
+│   ├── component_library.py  # Storybook-style library -> `.\run.ps1 library`
 │   ├── app/
 │   │   ├── config.py      # constants and option maps
 │   │   ├── api_client.py  # the only outward boundary (HTTP to the API)
+│   │   ├── data.py        # st.cache_data layer + invalidate()
 │   │   ├── formatting.py  # pure task -> string helpers      (unit tested)
 │   │   ├── tasks.py       # pure list/dict transforms         (unit tested)
 │   │   ├── filtering.py   # Filters value object + parsing    (unit tested)
-│   │   ├── filters.py     # inline filter bar + chips (Streamlit)
-│   │   ├── styles.py      # global CSS
+│   │   ├── filters.py     # inline filter bar + chips
+│   │   ├── styles.py      # design tokens + component CSS
 │   │   ├── theme.py       # Light / Dark / System switch
-│   │   └── views/         # sidebar, summary, task_list rendering
-│   └── tests/             # unit tests for the pure modules + api_client
+│   │   ├── components/    # reusable UI components + its own README.md
+│   │   ├── library/       # the component-library "stories"
+│   │   └── views/         # sidebar, summary, task_list composition
+│   └── tests/             # unit tests: api_client, formatting, tasks,
+│                          #             filtering, components, library
 ├── .streamlit/
 │   └── config.toml    # dashboard light & dark palettes, toolbar mode
 ├── tests/
@@ -91,8 +96,10 @@ Then open in your browser:
 | `.\run.ps1 rebuild` | Rebuild the image from scratch |
 | `.\run.ps1 logs`    | Live logs (Ctrl+C to exit) |
 | `.\run.ps1 status`  | Container status |
-| `.\run.ps1 test`    | Run `pytest` inside a container |
-| `.\run.ps1 shell`   | Open a shell inside the API container |
+| `.\run.ps1 test`         | Run `pytest` inside a container |
+| `.\run.ps1 library`      | Start the component library container → http://localhost:8502 |
+| `.\run.ps1 library-stop` | Stop the component library container |
+| `.\run.ps1 shell`        | Open a shell inside the API container |
 | `.\run.ps1 clean`   | Stop everything and **also delete the data volume** (asks for confirmation) |
 | `.\run.ps1 help`    | Help |
 
@@ -114,7 +121,8 @@ Runs `pytest` over both suites inside a container:
 
 - **`tests/`** — the API. Each test uses its own temporary SQLite database.
 - **`frontend/tests/`** — the dashboard's pure modules (`api_client` with the
-  HTTP layer mocked, `formatting`, `tasks`, `filtering`). No server needed.
+  HTTP layer mocked, `formatting`, `tasks`, `filtering`, `components`). No server
+  needed.
 
 ## Endpoints
 
@@ -184,6 +192,42 @@ the choice to the URL (`?theme=`) so it survives reloads. The built-in switcher
 in the toolbar menu stays available too. Both palettes are defined in
 `.streamlit/config.toml`.
 
+## Component library
+
+The dashboard's UI is built from a small internal library of reusable Streamlit
+render functions in **`frontend/app/components/`** (not a separate package):
+
+| Component | Purpose |
+|-----------|---------|
+| `badge` / `badge_html` | status pill; `data-tone` drives the colour |
+| `chip` / `chip_row`    | removable filter tags, wrapping |
+| `meter`                | progress bar + caption (handles `total=0`, over-target) |
+| `card`                 | bordered container with a coloured left edge + muted state |
+| `load`                 | run a fetch behind a spinner; on error show a message + Retry |
+| `empty_state`          | friendly zero-data panel with an optional call to action |
+| `segmented_filter`     | label→value single-select |
+| `pager`                | Previous / Next controls |
+| `confirm_button`       | two-step destructive action (popover + confirm) |
+
+Conventions, the props table and the loading/empty/error matrix are documented in
+**`frontend/app/components/README.md`**.
+
+### Browsing it — the Component Library
+
+A **Storybook-style** browser (`frontend/component_library.py`): a sidebar list of
+components; click one for its isolated page with a live **canvas**, **controls**,
+every **state** (long text, empty, error, disabled, wrapping) and copy-paste
+**usage**. It carries the **same Light / Dark / System switch** as the app.
+
+It runs as its own opt-in Docker service (`library` profile, port **8502**):
+
+```powershell
+.\run.ps1 library        # start  -> http://localhost:8502
+.\run.ps1 library-stop   # stop
+```
+
+A plain `.\run.ps1 start` does **not** launch it; `stop` / `clean` do tear it down.
+
 ## Accessibility
 
 The dashboard styles target WCAG 2.1 AA:
@@ -214,6 +258,7 @@ python -m venv .venv
 pip install -r requirements.txt
 python -m api.main                          # API on :8000
 streamlit run frontend/streamlit_app.py     # dashboard on :8501 (separate terminal)
+streamlit run frontend/component_library.py  # component library on :8502 (optional)
 ```
 
 Deleting the `.venv` folder leaves the machine clean again.
