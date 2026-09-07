@@ -87,3 +87,11 @@ class TodoRead(BaseModel):
     created_at: str
     updated_at: str
     completed_at: Optional[str] = None
+
+
+class TodoStats(BaseModel):
+    """Aggregate counts for the dashboard summary."""
+
+    total: int
+    pending: int
+    done: int

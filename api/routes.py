@@ -10,7 +10,7 @@ from typing import Literal, Optional
 from fastapi import APIRouter, HTTPException, Query, status
 
 from api import database
-from api.models import Status, TodoCreate, TodoRead, TodoUpdate
+from api.models import Status, TodoCreate, TodoRead, TodoStats, TodoUpdate
 
 router = APIRouter(prefix="/api", tags=["todos"])
 
@@ -30,19 +30,27 @@ def list_todos(
     date_to: Optional[date] = Query(
         default=None, description="Inclusive upper bound (YYYY-MM-DD)."
     ),
+    limit: Optional[int] = Query(
+        default=None, ge=1, le=1000,
+        description="Page size. Omit to return every match.",
+    ),
+    offset: int = Query(default=0, ge=0, description="Rows to skip (with limit)."),
 ) -> list[dict]:
-    """Return every task.
+    """Return tasks.
 
     Accepts ``?status=pending|done`` and a date range via ``date_from`` /
     ``date_to`` applied to ``date_field`` (``created``, ``updated`` or
-    ``completed``). Malformed dates are rejected with 422.
+    ``completed``), plus ``limit`` / ``offset`` paging. Malformed dates → 422.
     """
     return database.list_todos(
-        status_filter,
-        date_field,
-        date_from.isoformat() if date_from else None,
-        date_to.isoformat() if date_to else None,
+        status_filter, date_field, date_from, date_to, limit, offset
     )
+
+
+@router.get("/todos/stats", response_model=TodoStats)
+def todo_stats() -> dict:
+    """Total / pending / done counts for the whole table."""
+    return database.count_by_status()
 
 
 @router.get("/todos/{todo_id}", response_model=TodoRead)

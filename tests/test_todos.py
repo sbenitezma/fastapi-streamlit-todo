@@ -114,6 +114,34 @@ def test_date_filter_invalid_date_is_422(client):
     assert resp.status_code == 422
 
 
+def test_pagination_with_limit_and_offset(client):
+    ids = [_create(client, f"Task {i}").json()["id"] for i in range(5)]
+    newest_first = list(reversed(ids))
+
+    page1 = client.get("/api/todos", params={"limit": 2}).json()
+    assert [t["id"] for t in page1] == newest_first[:2]
+
+    page2 = client.get("/api/todos", params={"limit": 2, "offset": 2}).json()
+    assert [t["id"] for t in page2] == newest_first[2:4]
+
+    assert client.get("/api/todos", params={"limit": 0}).status_code == 422
+
+
+def test_stats_endpoint(client):
+    done_id = _create(client, "Finish").json()["id"]
+    _create(client, "Pending 1")
+    _create(client, "Pending 2")
+    client.patch(f"/api/todos/{done_id}", json={"status": "done"})
+
+    resp = client.get("/api/todos/stats")
+    assert resp.status_code == 200
+    assert resp.json() == {"total": 3, "pending": 2, "done": 1}
+
+
+def test_stats_endpoint_empty(client):
+    assert client.get("/api/todos/stats").json() == {"total": 0, "pending": 0, "done": 0}
+
+
 # --------------------------------------------------------------------------- #
 # GET /api/todos/{id}
 # --------------------------------------------------------------------------- #
