@@ -97,7 +97,7 @@ def render_active_filters(filters: Filters) -> None:
                  "on_remove": _clear_facet, "args": (facet,)}
                 for facet, label in filters.chips()
             ],
-            key="tm-chips",
+            key="active",
         )
     clear_area.button(
         "Clear all", key="chip-clear-all", type="secondary", width="stretch",

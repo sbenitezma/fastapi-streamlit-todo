@@ -88,7 +88,7 @@ _CSS = """
   .tm-dates { color: inherit; opacity: 0.78; font-size: 0.76rem; margin-top: 0.15rem; }
 
   /* ---- component: chip ------------------------------------------------- */
-  .st-key-tm-chips button {
+  [class*="st-key-tmchips-"] button {
     min-height: 1.9rem; padding: 0 0.7rem; border-radius: 999px;
     font-size: 0.8rem; font-weight: 600; white-space: nowrap;
   }

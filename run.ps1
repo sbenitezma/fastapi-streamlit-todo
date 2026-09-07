@@ -12,10 +12,12 @@
     rebuild    Rebuild the image from scratch and start again
     logs       Follow the live logs (Ctrl+C to exit)
     status     Container status
-    test       Run the test suite (pytest) inside a container
-    shell      Open a shell inside the API container
-    clean      Stop everything and ALSO delete the data volume (drops the tasks)
-    help       Show this help
+    test          Run the test suite (pytest) inside a container
+    library       Start the component library container -> http://localhost:8502
+    library-stop  Stop and remove the component library container
+    shell         Open a shell inside the API container
+    clean         Stop everything and ALSO delete the data volume (drops the tasks)
+    help          Show this help
 
   No command is the same as "start".
 
@@ -31,7 +33,7 @@
 
 param(
     [Parameter(Position = 0)]
-    [ValidateSet('start', 'stop', 'restart', 'rebuild', 'logs', 'status', 'test', 'shell', 'clean', 'help')]
+    [ValidateSet('start', 'stop', 'restart', 'rebuild', 'logs', 'status', 'test', 'library', 'library-stop', 'shell', 'clean', 'help')]
     [string]$Command = 'start'
 )
 
@@ -80,13 +82,13 @@ switch ($Command) {
     }
     'stop' {
         Assert-Docker
-        docker compose down
+        docker compose --profile library down
         Write-Host "Containers stopped. Data is still saved." -ForegroundColor Green
         break
     }
     'restart' {
         Assert-Docker
-        docker compose down
+        docker compose --profile library down
         docker compose up -d --build
         docker compose ps
         Show-Urls
@@ -94,7 +96,7 @@ switch ($Command) {
     }
     'rebuild' {
         Assert-Docker
-        docker compose down
+        docker compose --profile library down
         docker compose build --no-cache
         docker compose up -d
         docker compose ps
@@ -117,6 +119,24 @@ switch ($Command) {
         docker compose run --rm --no-deps api python -m pytest -v
         break
     }
+    'library' {
+        Assert-Docker
+        Write-Host "Starting the component library container..." -ForegroundColor Cyan
+        # no --build: it reuses the proyecto2-todo image + bind-mounted code
+        # (compose still builds it automatically if the image is missing)
+        docker compose --profile library up -d library
+        docker compose --profile library ps library
+        Write-Host ""
+        Write-Host "  Component library -> http://localhost:8502" -ForegroundColor Green
+        Write-Host "  Stop it with:  .\run.ps1 library-stop" -ForegroundColor DarkGray
+        break
+    }
+    'library-stop' {
+        Assert-Docker
+        docker compose --profile library rm -sf library
+        Write-Host "Component library stopped." -ForegroundColor Green
+        break
+    }
     'shell' {
         Assert-Docker
         docker compose exec api /bin/bash
@@ -127,7 +147,7 @@ switch ($Command) {
         Write-Host "This ALSO deletes the data volume (tasks will be lost)." -ForegroundColor Yellow
         $r = Read-Host "Type 'yes' to continue"
         if ($r -eq 'yes') {
-            docker compose down -v --rmi local
+            docker compose --profile library down -v --rmi local
             Write-Host "Environment removed completely." -ForegroundColor Green
         }
         else {

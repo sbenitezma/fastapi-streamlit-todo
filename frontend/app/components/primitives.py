@@ -37,13 +37,16 @@ def chip(
     )
 
 
-def chip_row(chips: Sequence[dict], *, key: str = "tm-chips") -> None:
+def chip_row(chips: Sequence[dict], *, key: str = "row") -> None:
     """Lay chips out left-to-right at their natural width, wrapping when many.
+
+    ``key`` must be unique per row on a page; the container class becomes
+    ``st-key-tmchips-<key>`` (the CSS matches the ``st-key-tmchips-`` prefix).
 
     Each item is a dict of :func:`chip` kwargs, e.g.
     ``{"label": "Status: Pending", "key": "chip-status", "on_remove": cb, "args": (…,)}``.
     """
-    row = st.container(horizontal=True, gap="small", wrap=True, key=key)
+    row = st.container(horizontal=True, gap="small", wrap=True, key=f"tmchips-{key}")
     for item in chips:
         with row:
             chip(**item)
