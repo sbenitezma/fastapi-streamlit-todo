@@ -1,12 +1,14 @@
 """The inline filter bar and active-filter chips (Streamlit).
 
 The pure ``Filters`` value object and query parsing live in ``app.filtering``.
-These functions draw the widgets and keep the selection mirrored in
-``st.query_params`` so a filtered view is shareable and survives a reload.
+These functions draw the widgets (with components from ``app.components``) and
+keep the selection mirrored in ``st.query_params`` so a filtered view is
+shareable and survives a reload.
 """
 
 import streamlit as st
 
+from app.components import chip_row, segmented_filter
 from app.config import DATE_FIELD_OPTIONS, STATUS_OPTIONS
 from app.filtering import DATE_FIELD_LABEL, STATUS_LABEL, Filters, filters_from_query
 
@@ -22,17 +24,6 @@ def _seed_widget_state() -> None:
     st.session_state.setdefault("f_from", seed.date_from)
     st.session_state.setdefault("f_to", seed.date_to)
     st.session_state["_filters_seeded"] = True
-
-
-def _current_filters() -> Filters:
-    return Filters(
-        status=STATUS_OPTIONS.get(st.session_state.get("f_status", "All")),
-        date_field=DATE_FIELD_OPTIONS.get(
-            st.session_state.get("f_field", "Created"), "created"
-        ),
-        date_from=st.session_state.get("f_from"),
-        date_to=st.session_state.get("f_to"),
-    )
 
 
 def _sync_query_params(filters: Filters) -> None:
@@ -60,14 +51,16 @@ def render_filter_bar() -> Filters:
 
     left, right = st.columns([3, 1], vertical_alignment="center")
     with left:
-        st.segmented_control(
-            "Status", list(STATUS_OPTIONS), key="f_status",
-            selection_mode="single", label_visibility="collapsed",
+        status = segmented_filter(
+            "Status", STATUS_OPTIONS, key="f_status", default="All",
         )
+
+    date_range_active = bool(
+        st.session_state.get("f_from") or st.session_state.get("f_to")
+    )
     with right:
-        # the badge reflects only what the popover contains (the date range)
-        label = "Filters (1)" if _current_filters().date_range_active else "Filters"
-        with st.popover(label, width="stretch"):
+        with st.popover("Filters (1)" if date_range_active else "Filters",
+                        width="stretch"):
             st.selectbox(
                 "Date field", list(DATE_FIELD_OPTIONS), key="f_field",
                 help="Which timestamp the range applies to.",
@@ -79,27 +72,34 @@ def render_filter_bar() -> Filters:
             if d_from and d_to and d_from > d_to:
                 st.warning("“From” is later than “To”.")
 
-    filters = _current_filters()
+    filters = Filters(
+        status=status,
+        date_field=DATE_FIELD_OPTIONS.get(
+            st.session_state.get("f_field", "Created"), "created"
+        ),
+        date_from=st.session_state.get("f_from"),
+        date_to=st.session_state.get("f_to"),
+    )
     _sync_query_params(filters)
     return filters
 
 
-def render_active_filters(filters: Filters, shown_count: int) -> None:
-    """Count line plus one removable chip per active facet."""
-    st.caption(f"{shown_count} shown" + (" · filtered" if filters.active else ""))
+def render_active_filters(filters: Filters) -> None:
+    """Removable chips on the left; 'Clear all' pinned right, under 'Filters'."""
     if not filters.active:
         return
 
-    chips = filters.chips()
-    st.markdown('<div class="tm-chips">', unsafe_allow_html=True)
-    cols = st.columns(len(chips) + 1, vertical_alignment="center")
-    for col, (facet, chip_label) in zip(cols, chips):
-        col.button(
-            f"✕ {chip_label}", key=f"chip-{facet}", on_click=_clear_facet,
-            args=(facet,), help="Remove this filter",
+    chip_area, clear_area = st.columns([3, 1], vertical_alignment="center")
+    with chip_area:
+        chip_row(
+            [
+                {"label": label, "key": f"chip-{facet}",
+                 "on_remove": _clear_facet, "args": (facet,)}
+                for facet, label in filters.chips()
+            ],
+            key="tm-chips",
         )
-    cols[-1].button(
-        "Clear all", key="chip-clear-all", type="primary",
+    clear_area.button(
+        "Clear all", key="chip-clear-all", type="secondary", width="stretch",
         on_click=_clear_facet, args=("all",),
     )
-    st.markdown("</div>", unsafe_allow_html=True)

@@ -1,16 +1,11 @@
 """Summary: a single compact progress line above the task list."""
 
-import streamlit as st
-
-from app.tasks import summarize
+from app.components import meter
 
 
-def render_summary(todos: list[dict]) -> None:
-    total, done, pending = summarize(todos)
-    if total:
-        st.progress(
-            done / total,
-            text=f"**{done} of {total} done** · {pending} pending",
-        )
-    else:
-        st.caption("No tasks yet — add your first one from the sidebar.")
+def render_summary(stats: dict) -> None:
+    """``stats`` is ``{total, pending, done}`` from ``GET /api/todos/stats``."""
+    meter(
+        stats["done"], stats["total"],
+        label="done", note=f"{stats['pending']} pending" if stats["pending"] else None,
+    )
