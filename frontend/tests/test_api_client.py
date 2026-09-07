@@ -23,7 +23,7 @@ class FakeResponse:
 
 
 def _patch_request(**kwargs):
-    return patch.object(api_client.requests, "request", **kwargs)
+    return patch.object(api_client._session, "request", **kwargs)
 
 
 # --- fetch_todos ---------------------------------------------------------- #
@@ -34,6 +34,15 @@ def test_fetch_todos_drops_empty_params_and_returns_json():
     method, url = m.call_args.args
     assert method == "GET" and url.endswith("/todos")
     assert m.call_args.kwargs["params"] == {"status": "pending"}
+
+
+# --- fetch_stats ------------------------------------------------------- #
+def test_fetch_stats():
+    body = {"total": 3, "pending": 2, "done": 1}
+    with _patch_request(return_value=FakeResponse(json_body=body)) as m:
+        assert api_client.fetch_stats() == body
+    method, url = m.call_args.args
+    assert method == "GET" and url.endswith("/todos/stats")
 
 
 # --- create_todo -------------------------------------------------------- #

@@ -5,6 +5,7 @@ from datetime import date
 import streamlit as st
 
 from app.api_client import APIError, create_todo
+from app.data import invalidate
 
 
 def render_create_form() -> None:
@@ -34,6 +35,7 @@ def render_create_form() -> None:
         return
     try:
         create_todo(title, description, created if created != today else None)
+        invalidate()
         st.toast("Task added", icon="✅")
         st.rerun()
     except APIError as exc:

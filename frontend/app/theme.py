@@ -60,7 +60,11 @@ def render_theme_control() -> None:
         on_change=_theme_touched, help="Switch between light and dark.",
     )
     choice = st.session_state.get("tm_theme") or "System"
-    if st.session_state.get("_theme_touched") or "theme" in st.query_params:
+    interacted = st.session_state.get("_theme_touched") or "theme" in st.query_params
+    # Only re-inject the helper iframe when the choice actually changed, not on
+    # every rerun.
+    if interacted and choice != st.session_state.get("_theme_applied"):
+        st.session_state["_theme_applied"] = choice
         if st.query_params.get("theme") != choice:
             st.query_params["theme"] = choice
         _apply_theme(choice)

@@ -3,6 +3,10 @@
 Every call to the REST API goes through here. Functions return plain data
 (``dict`` / ``list``) or raise :class:`APIError`; they never import Streamlit, so
 they can be unit tested without a running app.
+
+A single :class:`requests.Session` is reused for connection keep-alive -- the
+dashboard makes several calls per rerun, so re-establishing a TCP connection
+every time is pure waste.
 """
 
 from datetime import date
@@ -11,6 +15,8 @@ import requests
 
 from app.config import API_TIMEOUT, API_URL
 
+_session = requests.Session()
+
 
 class APIError(Exception):
     """Raised when the API is unreachable or replies with an error status."""
@@ -18,7 +24,7 @@ class APIError(Exception):
 
 def _request(method: str, path: str, **kwargs) -> requests.Response:
     try:
-        resp = requests.request(
+        resp = _session.request(
             method, f"{API_URL}{path}", timeout=API_TIMEOUT, **kwargs
         )
     except requests.exceptions.ConnectionError as exc:
@@ -41,6 +47,11 @@ def fetch_todos(**params) -> list[dict]:
     """GET /todos, dropping empty query parameters."""
     query = {k: v for k, v in params.items() if v not in (None, "")}
     return _request("GET", "/todos", params=query).json()
+
+
+def fetch_stats() -> dict:
+    """GET /todos/stats -> ``{total, pending, done}`` (tiny, index-backed)."""
+    return _request("GET", "/todos/stats").json()
 
 
 def create_todo(title: str, description: str, created_on: date | None = None) -> dict:
