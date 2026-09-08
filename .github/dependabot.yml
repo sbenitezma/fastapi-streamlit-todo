@@ -24,10 +24,15 @@ updates:
     commit-message:
       prefix: ci
 
-  # The base image in the Dockerfile.
+  # The base image in the Dockerfile. Patch/minor only -- a major Python bump
+  # (3.12 -> 3.x) is a deliberate task (wheels, requires-python, CI), not an
+  # automated PR.
   - package-ecosystem: docker
     directory: "/"
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "python"
+        update-types: ["version-update:semver-major"]
     commit-message:
       prefix: build
