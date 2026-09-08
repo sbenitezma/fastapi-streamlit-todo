@@ -1,6 +1,6 @@
 """Design tokens -- the single source of truth for colour/space/radius.
 
-The CSS mirror of these values lives in ``app/styles.py`` as ``:root`` custom
+The CSS mirror of these values lives in ``dashboard/styles.py`` as ``:root`` custom
 properties. Keep the two in sync; the Python side is used when a component builds
 inline HTML, the CSS side for everything rendered by Streamlit widgets.
 """

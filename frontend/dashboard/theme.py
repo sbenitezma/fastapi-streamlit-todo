@@ -15,7 +15,7 @@ import json
 import streamlit as st
 import streamlit.components.v1 as components
 
-from app.config import THEME_CHOICES
+from dashboard.config import THEME_CHOICES
 
 
 def seed_theme_state() -> None:

@@ -2,13 +2,13 @@
 
 import streamlit as st
 
-from app.components.tokens import TONE
+from dashboard.components.tokens import TONE
 
 
 def render() -> None:
     st.title("🧩 Component Library")
     st.write(
-        "Reusable, accessible Streamlit render functions from `app/components/`. "
+        "Reusable, accessible Streamlit render functions from `dashboard/components/`. "
         "Pick a component in the sidebar — each page has a live **canvas**, "
         "**controls**, the full set of **states**, and copy-paste **usage**."
     )
@@ -30,6 +30,6 @@ def render() -> None:
     st.divider()
     st.markdown(
         "**Conventions**, the props table and the loading / empty / error matrix "
-        "live in `frontend/app/components/README.md`. "
+        "live in `frontend/dashboard/components/README.md`. "
         "The Light / Dark / System switch below is the same one the app uses."
     )

@@ -1,6 +1,6 @@
 """Unit tests for app.formatting (pure, no Streamlit)."""
 
-from app.formatting import human_date, task_timeline
+from dashboard.formatting import human_date, task_timeline
 
 
 def test_human_date_none():

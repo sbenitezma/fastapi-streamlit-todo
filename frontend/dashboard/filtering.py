@@ -6,7 +6,7 @@ Pure: no Streamlit, no I/O. The Streamlit filter bar lives in ``app.filters``.
 from dataclasses import dataclass
 from datetime import date
 
-from app.config import DATE_FIELD_OPTIONS, STATUS_OPTIONS
+from dashboard.config import DATE_FIELD_OPTIONS, STATUS_OPTIONS
 
 STATUS_LABEL = {v: k for k, v in STATUS_OPTIONS.items()}
 DATE_FIELD_LABEL = {v: k for k, v in DATE_FIELD_OPTIONS.items()}

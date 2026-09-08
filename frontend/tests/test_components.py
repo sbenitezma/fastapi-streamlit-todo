@@ -1,6 +1,6 @@
-"""Unit tests for the pure component helpers (app.components.markup)."""
+"""Unit tests for the pure component helpers (dashboard.components.markup)."""
 
-from app.components.markup import badge_html, truncate
+from dashboard.components.markup import badge_html, truncate
 
 
 # --- truncate --------------------------------------------------------------- #

@@ -1,8 +1,8 @@
 """Global CSS: design tokens, component styles, spacing + a11y hardening.
 
-The token values mirror ``app/components/tokens.py``. Component-specific rules
+The token values mirror ``dashboard/components/tokens.py``. Component-specific rules
 are scoped to ``tm-*`` classes / ``data-*`` attributes emitted by
-``app/components``.
+``dashboard/components``.
 """
 
 import streamlit as st

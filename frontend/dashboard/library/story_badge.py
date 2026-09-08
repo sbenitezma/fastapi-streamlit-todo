@@ -2,8 +2,8 @@
 
 import streamlit as st
 
-from app.components import badge
-from app.library._shell import canvas, code_block, controls_row, story_header
+from dashboard.components import badge
+from dashboard.library._shell import canvas, code_block, controls_row, story_header
 
 _TONES = ["neutral", "warning", "success", "danger", "info"]
 
@@ -36,11 +36,11 @@ def render() -> None:
 
     code_block(
         """
-from app.components import badge
+from dashboard.components import badge
 badge("Pending", tone="warning", icon="◷")
 
 # inline, composed into a parent's single markdown call:
-from app.components.markup import badge_html
+from dashboard.components.markup import badge_html
 st.markdown(f'<div>{title}{badge_html("Done", tone="success")}</div>',
             unsafe_allow_html=True)
 """

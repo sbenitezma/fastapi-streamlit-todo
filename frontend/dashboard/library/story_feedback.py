@@ -4,8 +4,8 @@ import time
 
 import streamlit as st
 
-from app.components import empty_state, error_state, load, segmented_filter
-from app.library._shell import canvas, code_block, story_header
+from dashboard.components import empty_state, error_state, load, segmented_filter
+from dashboard.library._shell import canvas, code_block, story_header
 
 
 def render() -> None:

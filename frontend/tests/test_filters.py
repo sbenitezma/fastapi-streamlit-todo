@@ -2,7 +2,7 @@
 
 from datetime import date
 
-from app.filtering import Filters, filters_from_query
+from dashboard.filtering import Filters, filters_from_query
 
 
 def test_defaults_are_inactive():

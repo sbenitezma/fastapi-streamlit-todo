@@ -26,15 +26,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import streamlit as st
 
-from app.api_client import APIError
-from app.components import empty_state, load, pager
-from app.data import load_stats, load_todos
-from app.filters import render_active_filters, render_filter_bar
-from app.styles import inject_styles
-from app.theme import render_theme_control, seed_theme_state
-from app.views.sidebar import render_create_form
-from app.views.summary import render_summary
-from app.views.task_list import render_task_list
+from dashboard.api_client import APIError
+from dashboard.components import empty_state, load, pager
+from dashboard.data import load_stats, load_todos
+from dashboard.filters import render_active_filters, render_filter_bar
+from dashboard.styles import inject_styles
+from dashboard.theme import render_theme_control, seed_theme_state
+from dashboard.views.sidebar import render_create_form
+from dashboard.views.summary import render_summary
+from dashboard.views.task_list import render_task_list
 
 PAGE_SIZE = 50
 

@@ -1,4 +1,4 @@
-"""Component Library -- a Storybook-style browser for ``app/components``.
+"""Component Library -- a Storybook-style browser for ``dashboard/components``.
 
     streamlit run frontend/component_library.py      (or: .\\run.ps1 library)
 
@@ -14,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import streamlit as st
 
-from app.library import (
+from dashboard.library import (
     overview,
     story_badge,
     story_card,
@@ -23,8 +23,8 @@ from app.library import (
     story_feedback,
     story_meter,
 )
-from app.styles import inject_styles
-from app.theme import render_theme_control, seed_theme_state
+from dashboard.styles import inject_styles
+from dashboard.theme import render_theme_control, seed_theme_state
 
 st.set_page_config(
     page_title="Component Library",

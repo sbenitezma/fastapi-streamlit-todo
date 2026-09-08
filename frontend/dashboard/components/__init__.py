@@ -11,15 +11,15 @@ These are Streamlit *render functions*, not web components. Conventions:
 * Colour never carries meaning alone; every state also has text and/or an icon.
 * Layout uses wrapping flow / column primitives so it degrades on narrow screens.
 
-See ``app/components/README.md`` for the full reference and
+See ``dashboard/components/README.md`` for the full reference and
 ``frontend/component_library.py`` for every component in every state.
 """
 
-from app.components.card import card
-from app.components.controls import confirm_button, pager, segmented_filter
-from app.components.feedback import empty_state, error_state, load
-from app.components.markup import badge_html, truncate
-from app.components.primitives import badge, chip, chip_row, meter
+from dashboard.components.card import card
+from dashboard.components.controls import confirm_button, pager, segmented_filter
+from dashboard.components.feedback import empty_state, error_state, load
+from dashboard.components.markup import badge_html, truncate
+from dashboard.components.primitives import badge, chip, chip_row, meter
 
 __all__ = [
     "badge",
