@@ -1,0 +1,11 @@
+# Keep line endings predictable regardless of the contributor's OS.
+# Unix-consumed files must stay LF (a CRLF Makefile breaks `make`).
+Makefile        text eol=lf
+*.sh            text eol=lf
+*.toml          text eol=lf
+*.yml           text eol=lf
+*.yaml          text eol=lf
+
+# Windows scripts stay CRLF.
+*.ps1           text eol=crlf
+*.bat           text eol=crlf
