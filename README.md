@@ -56,7 +56,8 @@ proyecto_2/
 │   └── test_todos.py  # >=1 test per endpoint
 ├── Dockerfile
 ├── docker-compose.yml
-├── run.ps1 / run.bat  # startup script (see below)
+├── run.ps1 / run.bat  # task runner for Windows (see below)
+├── Makefile           # same targets for macOS / Linux
 ├── requirements.txt
 └── pytest.ini
 ```
@@ -88,7 +89,8 @@ From PowerShell, in the project folder:
 .\run.ps1 start
 ```
 
-Or just **double-click `run.bat`**.
+Or just **double-click `run.bat`**. On macOS / Linux use `make start` instead
+(same targets — see below).
 
 Then open in your browser:
 
@@ -117,6 +119,9 @@ Then open in your browser:
 
 `run.bat` accepts the same: `run.bat stop`, `run.bat logs`, etc. With no argument it starts.
 
+On **macOS / Linux**, the `Makefile` exposes the same targets — `make start`,
+`make test`, `make logs`, `make clean`, … and `make` on its own prints the list.
+
 ## Data
 
 The SQLite database lives in the Docker volume `todo-data` (mounted at
@@ -126,7 +131,8 @@ The SQLite database lives in the Docker volume `todo-data` (mounted at
 ## Tests
 
 ```powershell
-.\run.ps1 test
+.\run.ps1 test     # Windows
+make test          # macOS / Linux
 ```
 
 Runs `pytest` over both suites inside a container:
