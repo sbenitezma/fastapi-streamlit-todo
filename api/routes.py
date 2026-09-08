@@ -12,7 +12,7 @@ from typing import Literal, Optional
 from fastapi import APIRouter, Depends, Query, status
 
 from api.models import Status, TodoCreate, TodoRead, TodoStats, TodoUpdate
-from api.todos_service import TodoService
+from api.todos_service import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, TodoService
 
 router = APIRouter(prefix="/api", tags=["todos"])
 
@@ -37,9 +37,9 @@ def list_todos(
     date_to: Optional[date] = Query(
         default=None, description="Inclusive upper bound (YYYY-MM-DD)."
     ),
-    limit: Optional[int] = Query(
-        default=None, ge=1, le=1000,
-        description="Page size. Omit to return every match.",
+    limit: int = Query(
+        default=DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE,
+        description=f"Page size, 1-{MAX_PAGE_SIZE} (default {DEFAULT_PAGE_SIZE}).",
     ),
     offset: int = Query(default=0, ge=0, description="Rows to skip (with limit)."),
     service: TodoService = Depends(get_todo_service),
@@ -48,7 +48,9 @@ def list_todos(
 
     Accepts ``?status=pending|done`` and a date range via ``date_from`` /
     ``date_to`` applied to ``date_field`` (``created``, ``updated`` or
-    ``completed``), plus ``limit`` / ``offset`` paging. Malformed dates → 422.
+    ``completed``), plus ``limit`` / ``offset`` paging. The result is always
+    capped (an unbounded list is a trivial resource-exhaustion vector).
+    Malformed dates → 422.
     """
     return service.list_todos(
         status_filter, date_field, date_from, date_to, limit, offset

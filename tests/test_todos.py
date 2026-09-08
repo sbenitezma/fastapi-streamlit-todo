@@ -125,6 +125,12 @@ def test_pagination_with_limit_and_offset(client):
     assert [t["id"] for t in page2] == newest_first[2:4]
 
     assert client.get("/api/todos", params={"limit": 0}).status_code == 422
+    assert client.get("/api/todos", params={"limit": 1001}).status_code == 422
+
+
+def test_list_without_limit_still_returns_matches(client):
+    ids = {_create(client, f"Task {i}").json()["id"] for i in range(3)}
+    assert {t["id"] for t in client.get("/api/todos").json()} == ids
 
 
 def test_stats_endpoint(client):

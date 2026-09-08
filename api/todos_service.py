@@ -27,6 +27,12 @@ DATE_COLUMNS = {
     "completed": "completed_at",
 }
 
+# The list endpoint is always paginated: a missing ``limit`` falls back to
+# DEFAULT_PAGE_SIZE and anything larger is clamped to MAX_PAGE_SIZE, so a single
+# request can never be asked to materialize the whole table.
+DEFAULT_PAGE_SIZE = 100
+MAX_PAGE_SIZE = 1000
+
 ConnectionProvider = Callable[[], Connection]
 
 
@@ -226,7 +232,12 @@ class TodoService:
         limit: int | None = None,
         offset: int = 0,
     ) -> list[dict]:
-        return self.repo.list(status, date_field, date_from, date_to, limit, offset)
+        # Enforce the page-size cap here too, not just at the route, so a direct
+        # caller (tests, a future CLI) cannot ask for an unbounded result.
+        capped = DEFAULT_PAGE_SIZE if limit is None else max(1, min(limit, MAX_PAGE_SIZE))
+        return self.repo.list(
+            status, date_field, date_from, date_to, capped, max(0, offset)
+        )
 
     def stats(self) -> dict[str, int]:
         return self.repo.count_by_status()

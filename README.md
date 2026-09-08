@@ -151,9 +151,11 @@ Runs `pytest` over both suites inside a container:
 | `date_field` | `created` \| `updated` \| `completed` (default `created`) | Which timestamp the date range applies to. |
 | `date_from`  | `YYYY-MM-DD` | Inclusive lower bound on `date_field`. |
 | `date_to`    | `YYYY-MM-DD` | Inclusive upper bound on `date_field`. |
+| `limit`      | `1`–`1000` | Page size. Defaults to `100`; the list is always capped. |
+| `offset`     | `>= 0` | Rows to skip, for paging. |
 
 Example: `GET /api/todos?status=done&date_field=completed&date_from=2026-09-01`.
-Malformed dates return `422`.
+Malformed dates and an out-of-range `limit` return `422`.
 
 ### Task model
 

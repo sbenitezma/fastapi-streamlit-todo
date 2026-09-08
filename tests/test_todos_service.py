@@ -9,6 +9,8 @@ import pytest
 
 from api import database
 from api.todos_service import (
+    DEFAULT_PAGE_SIZE,
+    MAX_PAGE_SIZE,
     EmptyUpdate,
     TodoNotFound,
     TodoRepository,
@@ -23,6 +25,18 @@ def service(tmp_path, monkeypatch):
     database.init_db()
     yield TodoService(TodoRepository())
     database.close_connection()
+
+
+def _seed(count: int) -> None:
+    """Insert ``count`` pending tasks in one transaction (fast bulk setup)."""
+    ts = "2024-01-01T00:00:00+00:00"
+    conn = database.get_connection()
+    with database.lock, conn:
+        conn.executemany(
+            "INSERT INTO todos (title, description, status, created_at, updated_at) "
+            "VALUES (?, NULL, 'pending', ?, ?)",
+            [(f"seed-{i}", ts, ts) for i in range(count)],
+        )
 
 
 # --------------------------------------------------------------------------- #
@@ -135,3 +149,17 @@ def test_repository_pagination(service):
     newest_first = list(reversed(ids))
     assert [t["id"] for t in service.repo.list(limit=2)] == newest_first[:2]
     assert [t["id"] for t in service.repo.list(limit=2, offset=2)] == newest_first[2:4]
+
+
+# --------------------------------------------------------------------------- #
+# page-size cap (defence in depth: enforced by the service, not just the route)
+# --------------------------------------------------------------------------- #
+def test_list_todos_defaults_to_capped_page_size(service):
+    _seed(DEFAULT_PAGE_SIZE + 25)
+    assert len(service.list_todos()) == DEFAULT_PAGE_SIZE
+
+
+def test_list_todos_clamps_oversized_limit(service):
+    _seed(MAX_PAGE_SIZE + 10)
+    # a caller asking for more than the cap is clamped, not rejected
+    assert len(service.list_todos(limit=10**9)) == MAX_PAGE_SIZE
