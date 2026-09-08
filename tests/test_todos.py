@@ -14,6 +14,15 @@ def _create(client, title="Test task", description=None):
 
 
 # --------------------------------------------------------------------------- #
+# GET /  (health probe used by the Docker healthcheck)
+# --------------------------------------------------------------------------- #
+def test_root_is_ok(client):
+    resp = client.get("/")
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "ok"
+
+
+# --------------------------------------------------------------------------- #
 # POST /api/todos
 # --------------------------------------------------------------------------- #
 def test_create_task(client):

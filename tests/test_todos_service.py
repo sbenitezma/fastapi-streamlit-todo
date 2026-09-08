@@ -90,6 +90,14 @@ def test_update_ignores_unknown_fields(service):
     assert "bogus" not in updated
 
 
+def test_repository_update_with_only_unknown_fields_returns_row_unchanged(service):
+    # the service rejects an empty PATCH; the repository, called directly with
+    # nothing it recognises, is a no-op that returns the current row.
+    todo = service.create_todo("Untouched")
+    same = service.repo.update(todo["id"], {"bogus": "x"})
+    assert same == todo
+
+
 def test_completed_at_is_stamped_and_cleared(service):
     todo = service.create_todo("Track me")
 
