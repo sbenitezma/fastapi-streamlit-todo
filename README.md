@@ -337,6 +337,31 @@ The dashboard styles target WCAG 2.1 AA:
 Known limitation: Streamlit does not emit a `<main>` landmark, which is outside
 the app's control.
 
+## Security & scope
+
+This is a single-user tool that runs locally in Docker, and it is scoped to
+match:
+
+- **No authentication or authorization.** Every endpoint is open; anyone who can
+  reach `:8000` has full CRUD over every task. The dashboard talks to the API on
+  a private Docker network, and neither port needs to be published beyond
+  `localhost`.
+- What *is* hardened: Pydantic rejects malformed input (`422`), every query is
+  parameterised (no SQL injection), task text is HTML-escaped before rendering,
+  `GET /api/todos` is always capped so it can't be used to exhaust memory, and
+  the container runs as a non-root user.
+
+For multi-user or public deployment the first addition would be a **bearer
+token** checked in a FastAPI dependency:
+
+```python
+router = APIRouter(prefix="/api", dependencies=[Depends(require_token)])
+```
+
+with the dashboard sending `Authorization: Bearer …` on every request. The
+`Depends`-based service wiring and the engine/repository split already leave a
+clean seam for it; nothing in the current structure would have to move.
+
 ## Running without Docker (optional)
 
 If you ever want to run it without containers you will need Python and the
