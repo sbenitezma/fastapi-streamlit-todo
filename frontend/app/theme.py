@@ -56,8 +56,12 @@ def _theme_touched() -> None:
 
 def render_theme_control() -> None:
     st.segmented_control(
-        "Theme", list(THEME_CHOICES), key="tm_theme", selection_mode="single",
-        on_change=_theme_touched, help="Switch between light and dark.",
+        "Theme",
+        list(THEME_CHOICES),
+        key="tm_theme",
+        selection_mode="single",
+        on_change=_theme_touched,
+        help="Switch between light and dark.",
     )
     choice = st.session_state.get("tm_theme") or "System"
     interacted = st.session_state.get("_theme_touched") or "theme" in st.query_params

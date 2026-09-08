@@ -14,7 +14,7 @@ Neither layer imports FastAPI, so both can be unit tested on their own.
 """
 
 from collections.abc import Callable
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from sqlite3 import Connection
 
 from api import database
@@ -63,12 +63,12 @@ class EmptyUpdate(TodoServiceError):
 # --------------------------------------------------------------------------- #
 def _now() -> str:
     """Current timestamp in ISO 8601 (UTC)."""
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def _day_bounds(value: date) -> tuple[str, str]:
     """Half-open ISO bounds for a calendar day: ``[day 00:00, next day 00:00)``."""
-    start = datetime(value.year, value.month, value.day, tzinfo=timezone.utc)
+    start = datetime(value.year, value.month, value.day, tzinfo=UTC)
     return start.isoformat(), (start + timedelta(days=1)).isoformat()
 
 
@@ -78,7 +78,9 @@ def _day_bounds(value: date) -> tuple[str, str]:
 class TodoRepository:
     """All persistence for the ``todos`` table. Returns dicts, raises nothing."""
 
-    def __init__(self, connection_provider: ConnectionProvider = database.get_connection):
+    def __init__(
+        self, connection_provider: ConnectionProvider = database.get_connection
+    ):
         # A callable rather than a live connection: the shared connection can be
         # transparently reopened (tests swap ``TODOS_DB``), so we resolve it per
         # call, always under ``database.lock``.
@@ -128,9 +130,11 @@ class TodoRepository:
     def count_by_status(self) -> dict[str, int]:
         """Cheap aggregate for the dashboard summary (one indexed GROUP BY)."""
         with database.lock:
-            rows = self._connection().execute(
-                "SELECT status, COUNT(*) AS n FROM todos GROUP BY status"
-            ).fetchall()
+            rows = (
+                self._connection()
+                .execute("SELECT status, COUNT(*) AS n FROM todos GROUP BY status")
+                .fetchall()
+            )
         counts = {row["status"]: row["n"] for row in rows}
         pending, done = counts.get("pending", 0), counts.get("done", 0)
         return {"total": pending + done, "pending": pending, "done": done}
@@ -138,9 +142,11 @@ class TodoRepository:
     def get(self, todo_id: int) -> dict | None:
         """Return a task by its id, or ``None`` if it does not exist."""
         with database.lock:
-            row = self._connection().execute(
-                "SELECT * FROM todos WHERE id = ?", (todo_id,)
-            ).fetchone()
+            row = (
+                self._connection()
+                .execute("SELECT * FROM todos WHERE id = ?", (todo_id,))
+                .fetchone()
+            )
         return dict(row) if row is not None else None
 
     def add(
@@ -234,7 +240,9 @@ class TodoService:
     ) -> list[dict]:
         # Enforce the page-size cap here too, not just at the route, so a direct
         # caller (tests, a future CLI) cannot ask for an unbounded result.
-        capped = DEFAULT_PAGE_SIZE if limit is None else max(1, min(limit, MAX_PAGE_SIZE))
+        capped = (
+            DEFAULT_PAGE_SIZE if limit is None else max(1, min(limit, MAX_PAGE_SIZE))
+        )
         return self.repo.list(
             status, date_field, date_from, date_to, capped, max(0, offset)
         )

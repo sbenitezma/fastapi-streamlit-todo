@@ -19,7 +19,7 @@ COPY api ./api
 COPY frontend ./frontend
 COPY tests ./tests
 COPY .streamlit ./.streamlit
-COPY pytest.ini .
+COPY pytest.ini pyproject.toml ./
 
 # Drop root. /app/data holds the SQLite file and its WAL sidecars; a fresh named
 # volume inherits this directory's ownership on first mount, so the unprivileged

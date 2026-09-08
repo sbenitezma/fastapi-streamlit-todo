@@ -7,7 +7,7 @@ into a 404 and :class:`~api.todos_service.EmptyUpdate` into a 400.
 """
 
 from datetime import date
-from typing import Literal, Optional
+from typing import Literal
 
 from fastapi import APIRouter, Depends, Query, status
 
@@ -26,19 +26,21 @@ def get_todo_service() -> TodoService:
 
 @router.get("/todos", response_model=list[TodoRead])
 def list_todos(
-    status_filter: Optional[Status] = Query(default=None, alias="status"),
+    status_filter: Status | None = Query(default=None, alias="status"),
     date_field: DateField = Query(
         default="created",
         description="Which timestamp the date range applies to.",
     ),
-    date_from: Optional[date] = Query(
+    date_from: date | None = Query(
         default=None, description="Inclusive lower bound (YYYY-MM-DD)."
     ),
-    date_to: Optional[date] = Query(
+    date_to: date | None = Query(
         default=None, description="Inclusive upper bound (YYYY-MM-DD)."
     ),
     limit: int = Query(
-        default=DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE,
+        default=DEFAULT_PAGE_SIZE,
+        ge=1,
+        le=MAX_PAGE_SIZE,
         description=f"Page size, 1-{MAX_PAGE_SIZE} (default {DEFAULT_PAGE_SIZE}).",
     ),
     offset: int = Query(default=0, ge=0, description="Rows to skip (with limit)."),
@@ -64,9 +66,7 @@ def todo_stats(service: TodoService = Depends(get_todo_service)) -> dict:
 
 
 @router.get("/todos/{todo_id}", response_model=TodoRead)
-def get_todo(
-    todo_id: int, service: TodoService = Depends(get_todo_service)
-) -> dict:
+def get_todo(todo_id: int, service: TodoService = Depends(get_todo_service)) -> dict:
     """Return the details of a single task."""
     return service.get_todo(todo_id)
 
@@ -95,8 +95,6 @@ def update_todo(
 
 
 @router.delete("/todos/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_todo(
-    todo_id: int, service: TodoService = Depends(get_todo_service)
-) -> None:
+def delete_todo(todo_id: int, service: TodoService = Depends(get_todo_service)) -> None:
     """Delete a task. Returns 404 if it does not exist."""
     service.delete_todo(todo_id)

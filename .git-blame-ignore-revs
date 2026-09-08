@@ -1,0 +1,6 @@
+# Revisions to skip in `git blame` (bulk mechanical changes).
+# Enable locally with:  git config blame.ignoreRevsFile .git-blame-ignore-revs
+# GitHub applies it automatically.
+
+# chore: adopt ruff and mypy -- ruff --fix + ruff format across the tree
+591f9f419fc3c448220d2442a4983372383a5331

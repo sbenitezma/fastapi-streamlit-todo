@@ -38,13 +38,15 @@ def _render_row(todo: dict) -> None:
 
 
 def _render_details(todo: dict, is_pending: bool) -> None:
-    tone, badge_label = ("warning", "◷ Pending") if is_pending else ("success", "✓ Done")
+    tone, badge_label = (
+        ("warning", "◷ Pending") if is_pending else ("success", "✓ Done")
+    )
     title_class = "tm-title" if is_pending else "tm-title tm-title--done"
     title, _ = truncate(todo["title"], 160)
 
     html = [
         f'<div class="{title_class}" title="{escape(todo["title"])}">'
-        f'{escape(title)}{badge_html(badge_label, tone=tone)}</div>'
+        f"{escape(title)}{badge_html(badge_label, tone=tone)}</div>"
     ]
     if todo["description"]:
         html.append(f'<div class="tm-desc">{escape(todo["description"])}</div>')
@@ -55,19 +57,27 @@ def _render_details(todo: dict, is_pending: bool) -> None:
 def _render_actions(todo: dict, is_pending: bool) -> None:
     if is_pending:
         if st.button(
-            "Complete", key=f"done-{todo['id']}", type="primary", width="stretch",
+            "Complete",
+            key=f"done-{todo['id']}",
+            type="primary",
+            width="stretch",
             help=f'Mark "{todo["title"]}" as done',
         ):
             _run(lambda: set_status(todo["id"], "done"), "Task completed", "✅")
     elif st.button(
-        "Reopen", key=f"reopen-{todo['id']}", width="stretch",
+        "Reopen",
+        key=f"reopen-{todo['id']}",
+        width="stretch",
         help=f'Move "{todo["title"]}" back to pending',
     ):
         _run(lambda: set_status(todo["id"], "pending"), "Task reopened", None)
 
     if confirm_button(
-        "Delete", key=f"del-{todo['id']}", title=todo["title"],
-        confirm_label="Yes, delete", help=f'Delete "{todo["title"]}"',
+        "Delete",
+        key=f"del-{todo['id']}",
+        title=todo["title"],
+        confirm_label="Yes, delete",
+        help=f'Delete "{todo["title"]}"',
     ):
         _run(lambda: delete_todo(todo["id"]), "Task deleted", "🗑️")
 

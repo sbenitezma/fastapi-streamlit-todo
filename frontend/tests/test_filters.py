@@ -40,8 +40,9 @@ def test_chips_labels():
 def test_from_query_roundtrip():
     params = {"status": "done", "date_field": "completed", "date_from": "2026-09-01"}
     f = filters_from_query(params)
-    assert f == Filters(status="done", date_field="completed",
-                        date_from=date(2026, 9, 1))
+    assert f == Filters(
+        status="done", date_field="completed", date_from=date(2026, 9, 1)
+    )
     assert f.to_query() == params
 
 

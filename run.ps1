@@ -13,6 +13,7 @@
     logs       Follow the live logs (Ctrl+C to exit)
     status     Container status
     test          Run the test suite (pytest) inside a container
+    lint          Run ruff + mypy inside a container
     library       Start the component library container -> http://localhost:8502
     library-stop  Stop and remove the component library container
     shell         Open a shell inside the API container
@@ -33,7 +34,7 @@
 
 param(
     [Parameter(Position = 0)]
-    [ValidateSet('start', 'stop', 'restart', 'rebuild', 'logs', 'status', 'test', 'library', 'library-stop', 'shell', 'clean', 'help')]
+    [ValidateSet('start', 'stop', 'restart', 'rebuild', 'logs', 'status', 'test', 'lint', 'library', 'library-stop', 'shell', 'clean', 'help')]
     [string]$Command = 'start'
 )
 
@@ -117,6 +118,12 @@ switch ($Command) {
         Assert-Docker
         Write-Host "Running pytest inside a container..." -ForegroundColor Cyan
         docker compose run --rm --no-deps api python -m pytest -v
+        break
+    }
+    'lint' {
+        Assert-Docker
+        Write-Host "Running ruff + mypy inside a container..." -ForegroundColor Cyan
+        docker compose run --rm --no-deps api sh -c "ruff check . && ruff format --check . && mypy"
         break
     }
     'library' {

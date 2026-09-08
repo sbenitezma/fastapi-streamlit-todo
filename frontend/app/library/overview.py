@@ -19,7 +19,7 @@ def render() -> None:
         "Every pair meets WCAG AA (≥ 4.5:1) on any surface."
     )
     cols = st.columns(len(TONE))
-    for col, (name, (bg, fg)) in zip(cols, TONE.items()):
+    for col, (name, (bg, fg)) in zip(cols, TONE.items(), strict=True):
         col.markdown(
             f"<div style='background:{bg};color:{fg};padding:0.55rem;"
             f"border-radius:6px;text-align:center;font-weight:700;"

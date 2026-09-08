@@ -17,8 +17,11 @@ def test_human_date_keeps_real_time():
 
 
 def test_task_timeline_created_only():
-    todo = {"created_at": "2026-09-07T10:00:00+00:00",
-            "updated_at": "2026-09-07T10:00:00+00:00", "completed_at": None}
+    todo = {
+        "created_at": "2026-09-07T10:00:00+00:00",
+        "updated_at": "2026-09-07T10:00:00+00:00",
+        "completed_at": None,
+    }
     assert task_timeline(todo) == "Created 7 Sep 2026, 10:00"
 
 

@@ -17,10 +17,14 @@ def render() -> None:
     st.subheader("load()")
     with canvas():
         outcome = segmented_filter(
-            "outcome", {"succeeds": "ok", "fails": "err"},
-            key="lib-load-mode", default="succeeds", collapsed=False,
+            "outcome",
+            {"succeeds": "ok", "fails": "err"},
+            key="lib-load-mode",
+            default="succeeds",
+            collapsed=False,
         )
         if st.button("Run the fetch", key="lib-load-run"):
+
             def _fetch():
                 time.sleep(1.2)
                 if outcome == "err":
@@ -28,7 +32,9 @@ def render() -> None:
                 return [1, 2, 3]
 
             data = load(
-                _fetch, key="lib-load", spinner="Loading…",
+                _fetch,
+                key="lib-load",
+                spinner="Loading…",
                 error_types=(RuntimeError,),
             )
             st.success(f"got {len(data)} items")
@@ -36,14 +42,19 @@ def render() -> None:
     st.subheader("empty_state()")
     with canvas():
         empty_state(
-            "No tasks yet", body="Add your first one from the sidebar.",
-            icon="✅", key="lib-empty-plain",
+            "No tasks yet",
+            body="Add your first one from the sidebar.",
+            icon="✅",
+            key="lib-empty-plain",
         )
     with canvas():
         empty_state(
-            "Nothing matches this view", body="Try a different filter.",
-            icon="🔍", action_label="Clear all filters",
-            on_action=lambda: st.toast("filters cleared"), key="lib-empty-cta",
+            "Nothing matches this view",
+            body="Try a different filter.",
+            icon="🔍",
+            action_label="Clear all filters",
+            on_action=lambda: st.toast("filters cleared"),
+            key="lib-empty-cta",
         )
 
     st.subheader("error_state() — non-fatal")

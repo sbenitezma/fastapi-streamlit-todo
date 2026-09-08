@@ -13,15 +13,24 @@ def render_create_form() -> None:
     st.header("Add task")
     with st.form("new_task", clear_on_submit=True, border=False):
         title = st.text_input(
-            "Title", max_chars=200, placeholder="What needs doing?", help="Required.",
+            "Title",
+            max_chars=200,
+            placeholder="What needs doing?",
+            help="Required.",
         )
         description = st.text_area(
-            "Description", max_chars=2000, height=80, placeholder="Optional details",
+            "Description",
+            max_chars=2000,
+            height=80,
+            placeholder="Optional details",
         )
         created = st.date_input(
-            "Created on", value=today, max_value=today, format="YYYY-MM-DD",
+            "Created on",
+            value=today,
+            max_value=today,
+            format="YYYY-MM-DD",
             help="Defaults to today. Pick an earlier date to log a past task; "
-                 "future dates are not allowed.",
+            "future dates are not allowed.",
         )
         submitted = st.form_submit_button("Add task", type="primary", width="stretch")
 

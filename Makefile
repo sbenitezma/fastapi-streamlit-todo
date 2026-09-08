@@ -5,7 +5,7 @@ COMPOSE := docker compose
 PROFILE := --profile library
 
 .DEFAULT_GOAL := help
-.PHONY: help start stop restart rebuild logs status test library library-stop shell clean
+.PHONY: help start stop restart rebuild logs status test lint library library-stop shell clean
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -34,6 +34,9 @@ status: ## Show container status
 
 test: ## Run the pytest suite inside a container
 	$(COMPOSE) run --rm --no-deps api python -m pytest -v
+
+lint: ## Run ruff (lint + format check) and mypy inside a container
+	$(COMPOSE) run --rm --no-deps api sh -c "ruff check . && ruff format --check . && mypy"
 
 library: ## Start the component library -> http://localhost:8502
 	$(COMPOSE) $(PROFILE) up -d library

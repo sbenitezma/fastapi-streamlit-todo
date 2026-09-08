@@ -31,5 +31,5 @@ def render() -> None:
 
     code_block(
         'meter(stats["done"], stats["total"], label="done", '
-        'note=f"{stats[\'pending\']} pending")'
+        "note=f\"{stats['pending']} pending\")"
     )

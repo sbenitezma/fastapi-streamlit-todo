@@ -47,16 +47,22 @@ def test_fetch_stats():
 
 # --- create_todo -------------------------------------------------------- #
 def test_create_todo_strips_and_omits_blank_description():
-    with _patch_request(return_value=FakeResponse(status_code=201, json_body={"id": 9})) as m:
+    with _patch_request(
+        return_value=FakeResponse(status_code=201, json_body={"id": 9})
+    ) as m:
         api_client.create_todo("  Buy milk  ", "   ")
     assert m.call_args.kwargs["json"] == {"title": "Buy milk"}
 
 
 def test_create_todo_includes_backdate():
-    with _patch_request(return_value=FakeResponse(status_code=201, json_body={"id": 9})) as m:
+    with _patch_request(
+        return_value=FakeResponse(status_code=201, json_body={"id": 9})
+    ) as m:
         api_client.create_todo("Old", "note", date(2024, 1, 15))
     assert m.call_args.kwargs["json"] == {
-        "title": "Old", "description": "note", "created_at": "2024-01-15",
+        "title": "Old",
+        "description": "note",
+        "created_at": "2024-01-15",
     }
 
 

@@ -15,8 +15,11 @@ def render() -> None:
     st.subheader("segmented_filter()")
     with canvas():
         value = segmented_filter(
-            "Status", {"All": None, "Pending": "pending", "Done": "done"},
-            key="lib-seg", default="All", collapsed=False,
+            "Status",
+            {"All": None, "Pending": "pending", "Done": "done"},
+            key="lib-seg",
+            default="All",
+            collapsed=False,
         )
         st.write("returned value:", repr(value))
 
@@ -24,7 +27,8 @@ def render() -> None:
     st.session_state.setdefault("lib_page", 0)
     with canvas():
         pager(
-            key="lib-pager", page=st.session_state["lib_page"],
+            key="lib-pager",
+            page=st.session_state["lib_page"],
             has_next=st.session_state["lib_page"] < 3,
             on_change=lambda p: st.session_state.__setitem__("lib_page", p),
         )

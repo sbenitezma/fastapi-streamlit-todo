@@ -15,8 +15,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import streamlit as st
 
 from app.library import (
-    overview, story_badge, story_card, story_chip, story_controls,
-    story_feedback, story_meter,
+    overview,
+    story_badge,
+    story_card,
+    story_chip,
+    story_controls,
+    story_feedback,
+    story_meter,
 )
 from app.styles import inject_styles
 from app.theme import render_theme_control, seed_theme_state
@@ -34,8 +39,13 @@ inject_styles()
 nav = st.navigation(
     {
         "": [
-            st.Page(overview.render, title="Overview", icon="🏠",
-                    url_path="overview", default=True),
+            st.Page(
+                overview.render,
+                title="Overview",
+                icon="🏠",
+                url_path="overview",
+                default=True,
+            ),
         ],
         "Primitives": [
             st.Page(story_badge.render, title="badge", icon="🏷️", url_path="badge"),
@@ -46,12 +56,20 @@ nav = st.navigation(
             st.Page(story_card.render, title="card", icon="🗂️", url_path="card"),
         ],
         "Feedback": [
-            st.Page(story_feedback.render, title="load / empty / error",
-                    icon="⏳", url_path="feedback"),
+            st.Page(
+                story_feedback.render,
+                title="load / empty / error",
+                icon="⏳",
+                url_path="feedback",
+            ),
         ],
         "Controls": [
-            st.Page(story_controls.render, title="segmented / pager / confirm",
-                    icon="🎛️", url_path="controls"),
+            st.Page(
+                story_controls.render,
+                title="segmented / pager / confirm",
+                icon="🎛️",
+                url_path="controls",
+            ),
         ],
     },
     expanded=True,
