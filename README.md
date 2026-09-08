@@ -209,6 +209,9 @@ make lint           # macOS / Linux
 Runs **ruff** (lint + format check) over the repo and **mypy** over `api/`.
 Config is in `pyproject.toml`. CI runs the same checks on every push and PR.
 
+`pytest` also measures **coverage** of `api/` (`pytest-cov`) and fails under
+90% — the API is the tested core; the Streamlit runtime UI is out of the gate.
+
 ## Endpoints
 
 | Method | Path                  | Description                                         |

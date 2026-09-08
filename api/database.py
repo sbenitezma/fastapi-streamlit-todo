@@ -80,6 +80,6 @@ class Database:
             conn = self.connect()
             conn.executescript(_SCHEMA)
             columns = {row["name"] for row in conn.execute("PRAGMA table_info(todos)")}
-            if "completed_at" not in columns:
+            if "completed_at" not in columns:  # pragma: no cover - legacy-DB migration
                 conn.execute("ALTER TABLE todos ADD COLUMN completed_at TEXT")
             conn.commit()
