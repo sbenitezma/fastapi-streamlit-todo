@@ -13,7 +13,6 @@ switch triggers -- otherwise session state would reset and the sync would loop.
 import json
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 from dashboard.config import THEME_CHOICES
 
@@ -27,7 +26,10 @@ def seed_theme_state() -> None:
 
 
 def _apply_theme(choice: str) -> None:
-    components.html(
+    # A 0-px helper iframe that runs one script against the parent's
+    # localStorage. ``choice`` is always one of THEME_CHOICES (the segmented
+    # control constrains it), so the interpolation below is safe.
+    st.iframe(
         f"""
         <script>
           const target = {json.dumps(choice)};
