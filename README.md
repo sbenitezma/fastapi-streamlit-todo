@@ -196,8 +196,9 @@ Runs `pytest` over both suites inside a container:
 
 - **`tests/`** — the API. Each test uses its own temporary SQLite database.
 - **`frontend/tests/`** — the dashboard's pure modules (`api_client` with the
-  HTTP layer mocked, `formatting`, `tasks`, `filtering`, `components`). No server
-  needed.
+  HTTP layer mocked, `formatting`, `tasks`, `filtering`, `components`), plus
+  Streamlit `AppTest` coverage of the filter bar and theme switch (widget tree,
+  the returned `Filters`, URL mirroring). No server needed.
 
 ## Code quality
 
