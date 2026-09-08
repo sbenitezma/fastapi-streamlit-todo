@@ -7,7 +7,7 @@ API tests).
 
 import pytest
 
-from api import database
+from api.database import Database
 from api.todos_service import (
     DEFAULT_PAGE_SIZE,
     MAX_PAGE_SIZE,
@@ -19,19 +19,22 @@ from api.todos_service import (
 
 
 @pytest.fixture()
-def service(tmp_path, monkeypatch):
-    monkeypatch.setenv("TODOS_DB", str(tmp_path / "service_todos.db"))
-    database.close_connection()  # drop any connection from a previous test
-    database.init_db()
-    yield TodoService(TodoRepository())
-    database.close_connection()
+def db(tmp_path):
+    database = Database(str(tmp_path / "service_todos.db"))
+    database.init_schema()
+    yield database
+    database.close()
 
 
-def _seed(count: int) -> None:
+@pytest.fixture()
+def service(db):
+    return TodoService(TodoRepository(db))
+
+
+def _seed(db: Database, count: int) -> None:
     """Insert ``count`` pending tasks in one transaction (fast bulk setup)."""
     ts = "2024-01-01T00:00:00+00:00"
-    conn = database.get_connection()
-    with database.lock, conn:
+    with db.lock, db.connect() as conn:
         conn.executemany(
             "INSERT INTO todos (title, description, status, created_at, updated_at) "
             "VALUES (?, NULL, 'pending', ?, ?)",
@@ -154,12 +157,12 @@ def test_repository_pagination(service):
 # --------------------------------------------------------------------------- #
 # page-size cap (defence in depth: enforced by the service, not just the route)
 # --------------------------------------------------------------------------- #
-def test_list_todos_defaults_to_capped_page_size(service):
-    _seed(DEFAULT_PAGE_SIZE + 25)
+def test_list_todos_defaults_to_capped_page_size(db, service):
+    _seed(db, DEFAULT_PAGE_SIZE + 25)
     assert len(service.list_todos()) == DEFAULT_PAGE_SIZE
 
 
-def test_list_todos_clamps_oversized_limit(service):
-    _seed(MAX_PAGE_SIZE + 10)
+def test_list_todos_clamps_oversized_limit(db, service):
+    _seed(db, MAX_PAGE_SIZE + 10)
     # a caller asking for more than the cap is clamped, not rejected
     assert len(service.list_todos(limit=10**9)) == MAX_PAGE_SIZE
