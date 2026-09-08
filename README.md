@@ -63,6 +63,57 @@ proyecto_2/
 └── pytest.ini
 ```
 
+## Architecture
+
+### Request flow
+
+```mermaid
+flowchart LR
+    B["Browser"] -->|HTTP| S["Streamlit dashboard<br/>:8501"]
+    S --> C["st.cache_data<br/>10s TTL"]
+    C -->|"requests · HTTP / JSON"| A["FastAPI<br/>:8000"]
+    A --> R["routes.py<br/>Depends → service"]
+    R --> SVC["TodoService<br/>business rules"]
+    SVC --> REPO["TodoRepository<br/>all SQL"]
+    REPO --> DB[("SQLite<br/>WAL · 1 shared conn + RLock")]
+```
+
+### Layers
+
+- **Two processes, HTTP only.** The dashboard imports `requests`, never
+  `sqlite3`. Either side runs, deploys and is replaced independently; the API is
+  usable on its own at `/docs`.
+- **API — engine → repository → service → routes:**
+  - `database.py` opens one WAL-mode SQLite connection per process, guarded by an
+    `RLock`, and owns the schema.
+  - `TodoRepository` is the only code that emits SQL — parameterised queries,
+    plain-`dict` results, an injectable connection provider.
+  - `TodoService` holds the business rules (a task must exist, a `PATCH` must
+    change something, `completed_at` is derived) and raises `TodoNotFound` /
+    `EmptyUpdate`; `main.py` maps those to 404 / 400.
+  - `routes.py` only validates with Pydantic and delegates via
+    `Depends(get_todo_service)`. Neither the service nor the repository imports
+    FastAPI, so both are unit-tested directly (`tests/test_todos_service.py`).
+- **Dashboard — boundary → cache → pure helpers → views → components:**
+  - `api_client.py` is the only module that does I/O; `formatting`, `tasks` and
+    `filtering` are pure and unit-tested.
+  - `st.cache_data` (10s TTL) collapses Streamlit's full-script reruns to zero
+    API calls when nothing changed; `invalidate()` runs after every mutation.
+  - `app/components/` is a small internal library (badge, card, meter, chip,
+    pager, …) with its own Storybook-style browser.
+
+### Trade-offs (and where the ceiling is)
+
+| Decision | Why | Cost / when to revisit |
+|----------|-----|------------------------|
+| **SQLite, no ORM** | Zero setup, one file, `sqlite3` is stdlib | Single node. The engine/repository split keeps a move to Postgres local — swap `database.py` + the repository, leave routes/service/tests untouched. |
+| **One shared connection + global `RLock`** | Fast enough here; removes a class of threading / `SQLITE_BUSY` bugs | Serialises *all* reads and writes in the process. Real read concurrency needs a reader pool or connection-per-thread. |
+| **`GET /api/todos` is always capped** | An open, unauthenticated list endpoint returning the whole table is a trivial DoS | `limit` defaults to 100, hard max 1000; clients page with `offset`. |
+| **`st.cache_data` is per-process, not per-user** | Simple, fine for one or few users | One user's mutation calls `invalidate()` for everyone. Multi-tenant would need per-user keys or a shared cache. |
+| **No authentication** | Out of scope for the exercise | Anyone who can reach `:8000` has full CRUD. First thing to add for real use: a bearer token via `Depends`. |
+| **One Docker image for API + dashboard + tests** | One build to reason about | The API image carries Streamlit/pandas/pyarrow (~500 MB). Split or go multi-stage if image size matters. |
+| **Frontend speaks HTTP, never SQL** | Clean seam; the API stays reusable and independently testable | An extra hop per read, softened by the cache layer. |
+
 ## Only requirement
 
 **Docker Desktop** installed and running (green icon, "Engine running").
