@@ -128,6 +128,10 @@ The SQLite database lives in the Docker volume `todo-data` (mounted at
 `/app/data/todos.db` inside the container). It survives `stop`, `restart` and
 `rebuild`. Only `clean` removes it.
 
+The container runs as an unprivileged user (`appuser`, uid 1000). If you kept a
+`todo-data` volume from an older build that ran as root, recreate it once with
+`make clean` / `.\run.ps1 clean`.
+
 ## Tests
 
 ```powershell

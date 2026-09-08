@@ -21,6 +21,16 @@ COPY tests ./tests
 COPY .streamlit ./.streamlit
 COPY pytest.ini .
 
+# Drop root. /app/data holds the SQLite file and its WAL sidecars; a fresh named
+# volume inherits this directory's ownership on first mount, so the unprivileged
+# process can write there. (An existing volume created by an older, root image
+# keeps its old ownership -- recreate it with `make clean` / `docker compose down -v`.)
+RUN useradd --create-home --uid 1000 appuser \
+    && mkdir -p /app/data \
+    && chown -R appuser:appuser /app/data \
+    && chown appuser:appuser /app          # let pytest write .pytest_cache/ here
+USER appuser
+
 EXPOSE 8000 8501
 
 # Default command: the API. The dashboard overrides this command in docker-compose.
