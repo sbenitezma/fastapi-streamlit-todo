@@ -9,7 +9,7 @@ __pycache__
 *.db
 data
 README.md
-prompt.txt
+docs
 run.ps1
 run.bat
 setup-requirements.ps1
