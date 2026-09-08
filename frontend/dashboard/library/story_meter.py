@@ -2,8 +2,8 @@
 
 import streamlit as st
 
-from app.components import meter
-from app.library._shell import canvas, code_block, controls_row, story_header
+from dashboard.components import meter
+from dashboard.library._shell import canvas, code_block, controls_row, story_header
 
 
 def render() -> None:

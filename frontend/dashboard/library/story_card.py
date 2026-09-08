@@ -2,8 +2,8 @@
 
 import streamlit as st
 
-from app.components import badge_html, card
-from app.library._shell import canvas, code_block, controls_row, story_header
+from dashboard.components import badge_html, card
+from dashboard.library._shell import canvas, code_block, controls_row, story_header
 
 _LONG = (
     "A deliberately very long task title that must be truncated so the card keeps "

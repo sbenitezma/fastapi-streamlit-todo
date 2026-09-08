@@ -1,6 +1,6 @@
 """Summary: a single compact progress line above the task list."""
 
-from app.components import meter
+from dashboard.components import meter
 
 
 def render_summary(stats: dict) -> None:

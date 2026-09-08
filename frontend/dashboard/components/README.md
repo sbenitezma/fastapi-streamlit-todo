@@ -1,4 +1,4 @@
-# `app/components` — UI component library
+# `dashboard/components` — UI component library
 
 Reusable, accessible render functions for the dashboard. **Not** web components —
 Streamlit functions composed from `st.*`. Live examples: `streamlit run frontend/gallery.py`.
@@ -64,7 +64,7 @@ smaller badge cap). The sidebar collapses to a drawer on narrow screens.
 ## Usage
 
 ```python
-from app.components import (
+from dashboard.components import (
     badge,
     card,
     meter,

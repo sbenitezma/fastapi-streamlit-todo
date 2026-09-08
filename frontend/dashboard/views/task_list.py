@@ -5,11 +5,11 @@ from html import escape
 
 import streamlit as st
 
-from app.api_client import APIError, delete_todo, set_status
-from app.components import badge_html, card, confirm_button, truncate
-from app.data import invalidate
-from app.formatting import task_timeline
-from app.tasks import sort_pending_first
+from dashboard.api_client import APIError, delete_todo, set_status
+from dashboard.components import badge_html, card, confirm_button, truncate
+from dashboard.data import invalidate
+from dashboard.formatting import task_timeline
+from dashboard.tasks import sort_pending_first
 
 
 def render_task_list(todos: list[dict], *, grouped: bool) -> None:

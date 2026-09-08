@@ -2,8 +2,8 @@
 
 import streamlit as st
 
-from app.components import chip, chip_row
-from app.library._shell import canvas, code_block, story_header
+from dashboard.components import chip, chip_row
+from dashboard.library._shell import canvas, code_block, story_header
 
 _DEFAULT = ["Status: Pending", "Created: 2026-09-01 → …", "Assignee: me"]
 
@@ -46,7 +46,7 @@ def render() -> None:
 
     code_block(
         """
-from app.components import chip_row
+from dashboard.components import chip_row
 chip_row(
     [{"label": "Status: Pending", "key": "chip-status",
       "on_remove": clear_facet, "args": ("status",)}],

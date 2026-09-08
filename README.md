@@ -34,7 +34,7 @@ proyecto_2/
 ├── frontend/
 │   ├── streamlit_app.py   # entry point: wires the modules together
 │   ├── component_library.py  # Storybook-style library -> `.\run.ps1 library`
-│   ├── app/
+│   ├── dashboard/         # the dashboard package (imported as `dashboard`)
 │   │   ├── config.py      # constants and option maps
 │   │   ├── api_client.py  # the only outward boundary (HTTP to the API)
 │   │   ├── data.py        # st.cache_data layer + invalidate()
@@ -99,7 +99,7 @@ flowchart LR
     `filtering` are pure and unit-tested.
   - `st.cache_data` (10s TTL) collapses Streamlit's full-script reruns to zero
     API calls when nothing changed; `invalidate()` runs after every mutation.
-  - `app/components/` is a small internal library (badge, card, meter, chip,
+  - `dashboard/components/` is a small internal library (badge, card, meter, chip,
     pager, …) with its own Storybook-style browser.
 
 ### Trade-offs (and where the ceiling is)
@@ -285,7 +285,7 @@ in the toolbar menu stays available too. Both palettes are defined in
 ## Component library
 
 The dashboard's UI is built from a small internal library of reusable Streamlit
-render functions in **`frontend/app/components/`** (not a separate package):
+render functions in **`frontend/dashboard/components/`** (not a separate package):
 
 | Component | Purpose |
 |-----------|---------|
@@ -300,7 +300,7 @@ render functions in **`frontend/app/components/`** (not a separate package):
 | `confirm_button`       | two-step destructive action (popover + confirm) |
 
 Conventions, the props table and the loading/empty/error matrix are documented in
-**`frontend/app/components/README.md`**.
+**`frontend/dashboard/components/README.md`**.
 
 ### Browsing it — the Component Library
 

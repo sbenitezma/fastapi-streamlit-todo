@@ -5,12 +5,12 @@ from html import escape
 
 import streamlit as st
 
-from app.components.markup import badge_html
+from dashboard.components.markup import badge_html
 
 
 def badge(label: str, *, tone: str = "neutral", icon: str | None = None) -> None:
     """Render a status pill on its own. For an inline pill (e.g. after a title)
-    compose :func:`app.components.markup.badge_html` into the parent markdown."""
+    compose :func:`dashboard.components.markup.badge_html` into the parent markdown."""
     st.markdown(badge_html(label, tone=tone, icon=icon), unsafe_allow_html=True)
 
 

@@ -13,7 +13,7 @@ from datetime import date
 
 import requests
 
-from app.config import API_TIMEOUT, API_URL
+from dashboard.config import API_TIMEOUT, API_URL
 
 _session = requests.Session()
 

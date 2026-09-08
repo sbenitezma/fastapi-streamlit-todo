@@ -9,7 +9,7 @@ refetches.
 
 import streamlit as st
 
-from app import api_client
+from dashboard import api_client
 
 _TTL = 10  # seconds -- bounds staleness if another client mutates
 

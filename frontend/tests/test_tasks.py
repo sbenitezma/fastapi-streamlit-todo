@@ -1,6 +1,6 @@
 """Unit tests for app.tasks (pure, no Streamlit)."""
 
-from app.tasks import sort_pending_first, summarize
+from dashboard.tasks import sort_pending_first, summarize
 
 
 def _todo(id_, status):

@@ -2,8 +2,8 @@
 
 import streamlit as st
 
-from app.components import confirm_button, pager, segmented_filter
-from app.library._shell import canvas, code_block, story_header
+from dashboard.components import confirm_button, pager, segmented_filter
+from dashboard.library._shell import canvas, code_block, story_header
 
 
 def render() -> None:

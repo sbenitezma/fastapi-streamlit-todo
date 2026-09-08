@@ -6,8 +6,8 @@ from unittest.mock import patch
 import pytest
 import requests
 
-from app import api_client
-from app.api_client import APIError
+from dashboard import api_client
+from dashboard.api_client import APIError
 
 
 class FakeResponse:

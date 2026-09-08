@@ -4,8 +4,8 @@ from datetime import date
 
 import streamlit as st
 
-from app.api_client import APIError, create_todo
-from app.data import invalidate
+from dashboard.api_client import APIError, create_todo
+from dashboard.data import invalidate
 
 
 def render_create_form() -> None:

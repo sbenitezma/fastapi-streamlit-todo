@@ -1,16 +1,21 @@
 """The inline filter bar and active-filter chips (Streamlit).
 
 The pure ``Filters`` value object and query parsing live in ``app.filtering``.
-These functions draw the widgets (with components from ``app.components``) and
+These functions draw the widgets (with components from ``dashboard.components``) and
 keep the selection mirrored in ``st.query_params`` so a filtered view is
 shareable and survives a reload.
 """
 
 import streamlit as st
 
-from app.components import chip_row, segmented_filter
-from app.config import DATE_FIELD_OPTIONS, STATUS_OPTIONS
-from app.filtering import DATE_FIELD_LABEL, STATUS_LABEL, Filters, filters_from_query
+from dashboard.components import chip_row, segmented_filter
+from dashboard.config import DATE_FIELD_OPTIONS, STATUS_OPTIONS
+from dashboard.filtering import (
+    DATE_FIELD_LABEL,
+    STATUS_LABEL,
+    Filters,
+    filters_from_query,
+)
 
 _QUERY_KEYS = ("status", "date_field", "date_from", "date_to")
 
