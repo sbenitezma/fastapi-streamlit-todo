@@ -9,8 +9,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Copy requirements first to take advantage of Docker's layer cache.
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# This single image also runs the test suite (`run.ps1 test`), so it installs
+# the dev tools too; requirements-dev.txt pulls in requirements.txt.
+COPY requirements.txt requirements-dev.txt ./
+RUN pip install --no-cache-dir -r requirements-dev.txt
 
 # Application code.
 COPY api ./api

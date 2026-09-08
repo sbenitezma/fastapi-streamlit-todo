@@ -1,7 +1,7 @@
-fastapi
-uvicorn[standard]
-pydantic
-streamlit
-requests
-pytest
-httpx
+# Runtime dependencies. Pinned for reproducible builds; bump deliberately.
+# Dev/test tools live in requirements-dev.txt.
+fastapi==0.141.1
+uvicorn[standard]==0.52.4
+pydantic==2.13.5
+streamlit==1.63.0
+requests==2.34.2
