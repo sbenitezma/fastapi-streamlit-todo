@@ -212,6 +212,9 @@ Config is in `pyproject.toml`. CI runs the same checks on every push and PR.
 `pytest` also measures **coverage** of `api/` (`pytest-cov`) and fails under
 90% — the API is the tested core; the Streamlit runtime UI is out of the gate.
 
+**Dependabot** (`.github/dependabot.yml`) opens weekly grouped PRs for the pinned
+Python deps, the GitHub Actions and the Docker base image.
+
 ## Endpoints
 
 | Method | Path                  | Description                                         |
