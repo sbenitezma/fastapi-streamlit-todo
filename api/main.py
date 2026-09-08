@@ -10,15 +10,20 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from api.database import init_db
+from api.database import Database, default_db_path
 from api.routes import router
 from api.todos_service import EmptyUpdate, TodoNotFound
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init_db()
-    yield
+    db = Database(default_db_path())
+    db.init_schema()
+    app.state.db = db
+    try:
+        yield
+    finally:
+        db.close()
 
 
 app = FastAPI(title="Task Management API", version="1.0.0", lifespan=lifespan)

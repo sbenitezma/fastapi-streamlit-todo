@@ -9,19 +9,26 @@ into a 404 and :class:`~api.todos_service.EmptyUpdate` into a 400.
 from datetime import date
 from typing import Literal
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, Request, status
 
+from api.database import Database
 from api.models import Status, TodoCreate, TodoRead, TodoStats, TodoUpdate
-from api.todos_service import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, TodoService
+from api.todos_service import (
+    DEFAULT_PAGE_SIZE,
+    MAX_PAGE_SIZE,
+    TodoRepository,
+    TodoService,
+)
 
 router = APIRouter(prefix="/api", tags=["todos"])
 
 DateField = Literal["created", "updated", "completed"]
 
 
-def get_todo_service() -> TodoService:
-    """Provide a service bound to the shared repository (one per request)."""
-    return TodoService()
+def get_todo_service(request: Request) -> TodoService:
+    """Build a service over the app's Database (set on app.state in the lifespan)."""
+    db: Database = request.app.state.db
+    return TodoService(TodoRepository(db))
 
 
 @router.get("/todos", response_model=list[TodoRead])

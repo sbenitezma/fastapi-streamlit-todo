@@ -1,9 +1,9 @@
 """Task persistence and business rules, split into two layers.
 
 * :class:`TodoRepository` -- the **Repository pattern**. The only code that
-  speaks SQL for the ``todos`` table. It takes a *connection provider* (so it can
-  be pointed at a temp database in tests), always uses parameterized queries and
-  returns plain ``dict`` rows.
+  speaks SQL for the ``todos`` table. It takes a :class:`~api.database.Database`
+  (so it can be pointed at a temp file in tests), always uses parameterized
+  queries and returns plain ``dict`` rows.
 * :class:`TodoService` -- the business rules the API needs: a task must exist, a
   ``PATCH`` has to change something, ``completed_at`` is derived from status
   transitions. It raises domain errors (:class:`TodoNotFound`,
@@ -13,11 +13,9 @@
 Neither layer imports FastAPI, so both can be unit tested on their own.
 """
 
-from collections.abc import Callable
 from datetime import UTC, date, datetime, timedelta
-from sqlite3 import Connection
 
-from api import database
+from api.database import Database
 
 # Date columns the list query is allowed to filter on. The mapping doubles as a
 # whitelist: only these values can ever reach an SQL string.
@@ -32,8 +30,6 @@ DATE_COLUMNS = {
 # request can never be asked to materialize the whole table.
 DEFAULT_PAGE_SIZE = 100
 MAX_PAGE_SIZE = 1000
-
-ConnectionProvider = Callable[[], Connection]
 
 
 # --------------------------------------------------------------------------- #
@@ -78,13 +74,8 @@ def _day_bounds(value: date) -> tuple[str, str]:
 class TodoRepository:
     """All persistence for the ``todos`` table. Returns dicts, raises nothing."""
 
-    def __init__(
-        self, connection_provider: ConnectionProvider = database.get_connection
-    ):
-        # A callable rather than a live connection: the shared connection can be
-        # transparently reopened (tests swap ``TODOS_DB``), so we resolve it per
-        # call, always under ``database.lock``.
-        self._connection = connection_provider
+    def __init__(self, db: Database) -> None:
+        self._db = db
 
     def list(
         self,
@@ -123,15 +114,15 @@ class TodoRepository:
             query += " LIMIT ? OFFSET ?"
             params += [limit, offset]
 
-        with database.lock:
-            rows = self._connection().execute(query, params).fetchall()
+        with self._db.lock:
+            rows = self._db.connect().execute(query, params).fetchall()
         return [dict(row) for row in rows]
 
     def count_by_status(self) -> dict[str, int]:
         """Cheap aggregate for the dashboard summary (one indexed GROUP BY)."""
-        with database.lock:
+        with self._db.lock:
             rows = (
-                self._connection()
+                self._db.connect()
                 .execute("SELECT status, COUNT(*) AS n FROM todos GROUP BY status")
                 .fetchall()
             )
@@ -141,9 +132,9 @@ class TodoRepository:
 
     def get(self, todo_id: int) -> dict | None:
         """Return a task by its id, or ``None`` if it does not exist."""
-        with database.lock:
+        with self._db.lock:
             row = (
-                self._connection()
+                self._db.connect()
                 .execute("SELECT * FROM todos WHERE id = ?", (todo_id,))
                 .fetchone()
             )
@@ -162,7 +153,7 @@ class TodoRepository:
         used.
         """
         timestamp = f"{created_at}T00:00:00+00:00" if created_at else _now()
-        with database.lock, self._connection() as conn:
+        with self._db.lock, self._db.connect() as conn:
             row = conn.execute(
                 "INSERT INTO todos "
                 "(title, description, status, created_at, updated_at, completed_at) "
@@ -181,7 +172,7 @@ class TodoRepository:
         allowed = {"title", "description", "status"}
         updates = {k: v for k, v in fields.items() if k in allowed}
 
-        with database.lock, self._connection() as conn:
+        with self._db.lock, self._db.connect() as conn:
             current = conn.execute(
                 "SELECT status FROM todos WHERE id = ?", (todo_id,)
             ).fetchone()
@@ -209,7 +200,7 @@ class TodoRepository:
 
     def delete(self, todo_id: int) -> bool:
         """Delete a task. Return ``True`` if a row was removed, ``False`` otherwise."""
-        with database.lock, self._connection() as conn:
+        with self._db.lock, self._db.connect() as conn:
             deleted = conn.execute(
                 "DELETE FROM todos WHERE id = ? RETURNING id", (todo_id,)
             ).fetchone()
@@ -226,8 +217,8 @@ class TodoService:
     :class:`TodoNotFound`, an empty ``PATCH`` is an :class:`EmptyUpdate`.
     """
 
-    def __init__(self, repository: TodoRepository | None = None) -> None:
-        self.repo = repository or TodoRepository()
+    def __init__(self, repository: TodoRepository) -> None:
+        self.repo = repository
 
     def list_todos(
         self,
