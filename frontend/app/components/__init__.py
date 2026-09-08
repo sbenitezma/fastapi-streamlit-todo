@@ -12,7 +12,7 @@ These are Streamlit *render functions*, not web components. Conventions:
 * Layout uses wrapping flow / column primitives so it degrades on narrow screens.
 
 See ``app/components/README.md`` for the full reference and
-``frontend/gallery.py`` for every component in every state.
+``frontend/component_library.py`` for every component in every state.
 """
 
 from app.components.card import card
