@@ -12,6 +12,15 @@ The dashboard **never** touches the database: it talks to the API through `reque
 Everything runs inside **Docker**: you do not need to install Python or any
 library on your machine. Once the containers are stopped, nothing is left installed.
 
+## Screenshots
+
+| Light | Dark |
+|-------|------|
+| ![Task Manager dashboard in the light theme: sidebar with the theme switch and the "Add task" form, a progress meter, the status filter, and a list of task cards with a coloured left edge](docs/img/dashboard-light.png) | ![The same dashboard in the dark theme](docs/img/dashboard-dark.png) |
+
+The **System / Light / Dark** switch is at the top of the sidebar; both palettes
+are defined in `.streamlit/config.toml`.
+
 ## Layout
 
 ```
