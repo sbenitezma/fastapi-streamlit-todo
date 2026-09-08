@@ -1,5 +1,7 @@
 # Task Manager — FastAPI + SQLite + Streamlit
 
+[![CI](https://github.com/sbenitezma/fastapi-streamlit-todo/actions/workflows/ci.yml/badge.svg)](https://github.com/sbenitezma/fastapi-streamlit-todo/actions/workflows/ci.yml)
+
 A complete to-do list application in two independent parts:
 
 - **REST API** (FastAPI + standard `sqlite3`, no ORM) — port **8000**.
