@@ -23,9 +23,10 @@ services:
       - todo-data:/app/data
       - ./api:/app/api
       - ./tests:/app/tests
-      # mounted so `run.ps1 test` sees the current front-end code (its unit
-      # tests run in this container); unused by the API at runtime
+      # mounted so `run.ps1 test` / `lint` see the current front-end code and
+      # tool config; unused by the API at runtime
       - ./frontend:/app/frontend
+      - ./pyproject.toml:/app/pyproject.toml
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/').status == 200 else 1)"]
       # probe often only while starting; back off to 30s once healthy so we are

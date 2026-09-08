@@ -23,8 +23,12 @@ def render() -> None:
         if chips:
             chip_row(
                 [
-                    {"label": lbl, "key": f"lib-chip-{i}",
-                     "on_remove": _drop, "args": (i,)}
+                    {
+                        "label": lbl,
+                        "key": f"lib-chip-{i}",
+                        "on_remove": _drop,
+                        "args": (i,),
+                    }
                     for i, lbl in enumerate(chips)
                 ],
                 key="demo",

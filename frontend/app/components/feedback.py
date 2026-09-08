@@ -23,7 +23,7 @@ def load(
     try:
         with st.spinner(spinner, show_time=True):
             return loader()
-    except error_types as exc:  # noqa: BLE001 -- caller chooses the types
+    except error_types as exc:
         st.error(str(exc), icon="⚠️")
         if st.button("Retry", key=f"{key}-retry", type="primary"):
             st.rerun()
@@ -52,8 +52,9 @@ def empty_state(
         html.append("</div>")
         st.markdown("".join(html), unsafe_allow_html=True)
         if action_label and on_action:
-            st.button(action_label, key=f"{key}-action", type="primary",
-                      on_click=on_action)
+            st.button(
+                action_label, key=f"{key}-action", type="primary", on_click=on_action
+            )
 
 
 def error_state(

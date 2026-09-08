@@ -12,8 +12,8 @@ TONE: dict[str, tuple[str, str]] = {
     "neutral": ("#5b616e", "#ffffff"),  # 5.6:1
     "warning": ("#8a5000", "#ffffff"),  # 7.5:1  -- "pending"
     "success": ("#0f6b3d", "#ffffff"),  # 7.0:1  -- "done"
-    "danger": ("#b3261e", "#ffffff"),   # 5.9:1
-    "info": ("#1c5fb8", "#ffffff"),     # 5.3:1
+    "danger": ("#b3261e", "#ffffff"),  # 5.9:1
+    "info": ("#1c5fb8", "#ffffff"),  # 5.3:1
 }
 
 # Left-edge accent colours for cards (used via CSS :has()).

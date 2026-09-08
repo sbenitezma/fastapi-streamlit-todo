@@ -58,7 +58,8 @@ proyecto_2/
 ├── docker-compose.yml
 ├── run.ps1 / run.bat  # task runner for Windows (see below)
 ├── Makefile           # same targets for macOS / Linux
-├── requirements.txt
+├── pyproject.toml     # ruff + mypy config
+├── requirements.txt / requirements-dev.txt
 └── pytest.ini
 ```
 
@@ -111,6 +112,7 @@ Then open in your browser:
 | `.\run.ps1 logs`    | Live logs (Ctrl+C to exit) |
 | `.\run.ps1 status`  | Container status |
 | `.\run.ps1 test`         | Run `pytest` inside a container |
+| `.\run.ps1 lint`         | Run `ruff` + `mypy` inside a container |
 | `.\run.ps1 library`      | Start the component library container → http://localhost:8502 |
 | `.\run.ps1 library-stop` | Stop the component library container |
 | `.\run.ps1 shell`        | Open a shell inside the API container |
@@ -145,6 +147,16 @@ Runs `pytest` over both suites inside a container:
 - **`frontend/tests/`** — the dashboard's pure modules (`api_client` with the
   HTTP layer mocked, `formatting`, `tasks`, `filtering`, `components`). No server
   needed.
+
+## Code quality
+
+```powershell
+.\run.ps1 lint     # Windows
+make lint           # macOS / Linux
+```
+
+Runs **ruff** (lint + format check) over the repo and **mypy** over `api/`.
+Config is in `pyproject.toml`. CI runs the same checks on every push and PR.
 
 ## Endpoints
 

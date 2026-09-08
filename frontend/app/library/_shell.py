@@ -1,7 +1,7 @@
 """Shared chrome for the component stories."""
 
-from streamlit.delta_generator import DeltaGenerator
 import streamlit as st
+from streamlit.delta_generator import DeltaGenerator
 
 
 def story_header(name: str, summary: str) -> None:

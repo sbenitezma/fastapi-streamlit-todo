@@ -31,8 +31,11 @@ def chip(
         )
         return
     st.button(
-        f"✕ {label}", key=key, type="secondary",
-        on_click=on_remove, args=args,
+        f"✕ {label}",
+        key=key,
+        type="secondary",
+        on_click=on_remove,
+        args=args,
         help=help or f"Remove filter: {label}",
     )
 

@@ -52,17 +52,23 @@ def render_filter_bar() -> Filters:
     left, right = st.columns([3, 1], vertical_alignment="center")
     with left:
         status = segmented_filter(
-            "Status", STATUS_OPTIONS, key="f_status", default="All",
+            "Status",
+            STATUS_OPTIONS,
+            key="f_status",
+            default="All",
         )
 
     date_range_active = bool(
         st.session_state.get("f_from") or st.session_state.get("f_to")
     )
     with right:
-        with st.popover("Filters (1)" if date_range_active else "Filters",
-                        width="stretch"):
+        with st.popover(
+            "Filters (1)" if date_range_active else "Filters", width="stretch"
+        ):
             st.selectbox(
-                "Date field", list(DATE_FIELD_OPTIONS), key="f_field",
+                "Date field",
+                list(DATE_FIELD_OPTIONS),
+                key="f_field",
                 help="Which timestamp the range applies to.",
             )
             c_from, c_to = st.columns(2)
@@ -93,13 +99,21 @@ def render_active_filters(filters: Filters) -> None:
     with chip_area:
         chip_row(
             [
-                {"label": label, "key": f"chip-{facet}",
-                 "on_remove": _clear_facet, "args": (facet,)}
+                {
+                    "label": label,
+                    "key": f"chip-{facet}",
+                    "on_remove": _clear_facet,
+                    "args": (facet,),
+                }
                 for facet, label in filters.chips()
             ],
             key="active",
         )
     clear_area.button(
-        "Clear all", key="chip-clear-all", type="secondary", width="stretch",
-        on_click=_clear_facet, args=("all",),
+        "Clear all",
+        key="chip-clear-all",
+        type="secondary",
+        width="stretch",
+        on_click=_clear_facet,
+        args=("all",),
     )

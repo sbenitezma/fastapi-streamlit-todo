@@ -64,20 +64,35 @@ smaller badge cap). The sidebar collapses to a drawer on narrow screens.
 ## Usage
 
 ```python
-from app.components import badge, card, meter, chip_row, pager, confirm_button, load, empty_state
+from app.components import (
+    badge,
+    card,
+    meter,
+    chip_row,
+    pager,
+    confirm_button,
+    load,
+    empty_state,
+)
 
 meter(stats["done"], stats["total"], label="done", note=f"{stats['pending']} pending")
 
-with card(accent="warning", muted=False, key=str(tid)):   # key: unique per card
-    st.markdown(f'<div class="tm-title">{title}{badge_html("◷ Pending", tone="warning")}</div>',
-                unsafe_allow_html=True)
+with card(accent="warning", muted=False, key=str(tid)):  # key: unique per card
+    st.markdown(
+        f'<div class="tm-title">{title}{badge_html("◷ Pending", tone="warning")}</div>',
+        unsafe_allow_html=True,
+    )
 
-data = load(lambda: fetch(...), key="todos", spinner="Loading tasks…", error_types=(APIError,))
+data = load(
+    lambda: fetch(...), key="todos", spinner="Loading tasks…", error_types=(APIError,)
+)
 if not data:
     empty_state("No tasks yet", body="Add one from the sidebar.", icon="✅")
 
 if confirm_button("Delete", key=f"del-{tid}", title=title):
     do_delete(tid)
 
-pager(key="pager", page=page, has_next=len(page_rows) == PAGE_SIZE, on_change=go_to_page)
+pager(
+    key="pager", page=page, has_next=len(page_rows) == PAGE_SIZE, on_change=go_to_page
+)
 ```

@@ -18,7 +18,10 @@ def test_summarize_counts():
 
 def test_sort_pending_first_is_stable():
     todos = [
-        _todo(1, "done"), _todo(2, "pending"), _todo(3, "done"), _todo(4, "pending"),
+        _todo(1, "done"),
+        _todo(2, "pending"),
+        _todo(3, "done"),
+        _todo(4, "pending"),
     ]
     ordered = [t["id"] for t in sort_pending_first(todos)]
     assert ordered == [2, 4, 1, 3]

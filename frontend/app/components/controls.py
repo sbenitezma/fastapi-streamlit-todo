@@ -23,7 +23,11 @@ def segmented_filter(
     """
     labels = list(options)
     st.segmented_control(
-        label, labels, key=key, selection_mode="single", help=help,
+        label,
+        labels,
+        key=key,
+        selection_mode="single",
+        help=help,
         label_visibility="collapsed" if collapsed else "visible",
     )
     chosen = st.session_state.get(key)
@@ -41,16 +45,26 @@ def pager(
         return
     prev_col, mid, next_col = st.columns([1, 4, 1], vertical_alignment="center")
     prev_col.button(
-        "‹ Previous", key=f"{key}-prev", width="stretch", disabled=page == 0,
-        on_click=on_change, args=(page - 1,), help="Go to the previous page",
+        "‹ Previous",
+        key=f"{key}-prev",
+        width="stretch",
+        disabled=page == 0,
+        on_click=on_change,
+        args=(page - 1,),
+        help="Go to the previous page",
     )
     mid.markdown(
         f"<div class='tm-pageno' aria-live='polite'>Page {page + 1}</div>",
         unsafe_allow_html=True,
     )
     next_col.button(
-        "Next ›", key=f"{key}-next", width="stretch", disabled=not has_next,
-        on_click=on_change, args=(page + 1,), help="Go to the next page",
+        "Next ›",
+        key=f"{key}-next",
+        width="stretch",
+        disabled=not has_next,
+        on_click=on_change,
+        args=(page + 1,),
+        help="Go to the next page",
     )
 
 
@@ -72,6 +86,8 @@ def confirm_button(
             st.markdown(f"{escape(label)} **{escape(title)}**?")
         st.caption(body)
         return st.button(
-            confirm_label or f"Yes, {label.lower()}", key=f"{key}-confirm",
-            type="primary" if tone == "danger" else "secondary", width="stretch",
+            confirm_label or f"Yes, {label.lower()}",
+            key=f"{key}-confirm",
+            type="primary" if tone == "danger" else "secondary",
+            width="stretch",
         )

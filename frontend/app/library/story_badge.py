@@ -30,7 +30,7 @@ def render() -> None:
     with row:
         badge("With icon", tone="success", icon="✓")
     with row:
-        badge("", tone="neutral")          # edge: empty label -> em dash
+        badge("", tone="neutral")  # edge: empty label -> em dash
     with row:
         badge("unknown tone", tone="bogus")  # edge: falls back to neutral
 

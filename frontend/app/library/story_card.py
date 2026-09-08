@@ -26,23 +26,25 @@ def render() -> None:
         with preview:
             with card(
                 accent=None if accent == "(none)" else accent,
-                muted=muted, key="lib-card",
+                muted=muted,
+                key="lib-card",
             ):
-                st.markdown(f'<div class="tm-title">{_LONG}</div>',
-                            unsafe_allow_html=True)
+                st.markdown(
+                    f'<div class="tm-title">{_LONG}</div>', unsafe_allow_html=True
+                )
                 st.caption("card content")
 
     st.subheader("Pending vs done")
     with card(accent="warning", key="lib-card-pending"):
         st.markdown(
             f'<div class="tm-title">Ship the release'
-            f'{badge_html("◷ Pending", tone="warning")}</div>',
+            f"{badge_html('◷ Pending', tone='warning')}</div>",
             unsafe_allow_html=True,
         )
     with card(accent="success", muted=True, key="lib-card-done"):
         st.markdown(
             f'<div class="tm-title tm-title--done">Ship the release'
-            f'{badge_html("✓ Done", tone="success")}</div>',
+            f"{badge_html('✓ Done', tone='success')}</div>",
             unsafe_allow_html=True,
         )
 

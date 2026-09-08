@@ -68,7 +68,9 @@ with st.sidebar:
 
 st.title("✅ Task Manager")
 
-stats = load(load_stats, key="stats", spinner="Loading summary…", error_types=(APIError,))
+stats = load(
+    load_stats, key="stats", spinner="Loading summary…", error_types=(APIError,)
+)
 render_summary(stats)
 
 st.header("Tasks")
@@ -85,7 +87,9 @@ page = st.session_state["page"]
 query = dict(signature, limit=str(PAGE_SIZE), offset=str(page * PAGE_SIZE))
 shown = load(
     lambda: load_todos(tuple(sorted(query.items()))),
-    key="todos", spinner="Loading tasks…", error_types=(APIError,),
+    key="todos",
+    spinner="Loading tasks…",
+    error_types=(APIError,),
 )
 
 if not shown:
@@ -93,7 +97,8 @@ if not shown:
         empty_state(
             "No tasks yet",
             body="Add your first one from the sidebar.",
-            icon="✅", key="empty-none",
+            icon="✅",
+            key="empty-none",
         )
     else:
         empty_state(
@@ -112,6 +117,8 @@ else:
     )
     render_task_list(shown, grouped=not filters.status)
     pager(
-        key="pager", page=page, has_next=len(shown) == PAGE_SIZE,
+        key="pager",
+        page=page,
+        has_next=len(shown) == PAGE_SIZE,
         on_change=_go_to_page,
     )

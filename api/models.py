@@ -4,8 +4,8 @@ This is where "garbage" is defined and rejected: empty titles, invalid statuses
 or oversized lengths are turned away before touching the database.
 """
 
-from datetime import date, datetime, timezone
-from typing import Literal, Optional
+from datetime import UTC, date, datetime
+from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -19,8 +19,8 @@ class TodoCreate(BaseModel):
     """Expected body for ``POST /api/todos``."""
 
     title: str = Field(min_length=1, max_length=TITLE_MAX)
-    description: Optional[str] = Field(default=None, max_length=DESCRIPTION_MAX)
-    created_at: Optional[date] = Field(
+    description: str | None = Field(default=None, max_length=DESCRIPTION_MAX)
+    created_at: date | None = Field(
         default=None,
         description=(
             "Optional creation date (YYYY-MM-DD) so past tasks can be recorded. "
@@ -38,7 +38,7 @@ class TodoCreate(BaseModel):
 
     @field_validator("description")
     @classmethod
-    def normalize_description(cls, v: Optional[str]) -> Optional[str]:
+    def normalize_description(cls, v: str | None) -> str | None:
         if v is None:
             return None
         v = v.strip()
@@ -46,8 +46,8 @@ class TodoCreate(BaseModel):
 
     @field_validator("created_at")
     @classmethod
-    def not_in_future(cls, v: Optional[date]) -> Optional[date]:
-        if v is not None and v > datetime.now(timezone.utc).date():
+    def not_in_future(cls, v: date | None) -> date | None:
+        if v is not None and v > datetime.now(UTC).date():
             raise ValueError("created_at cannot be in the future")
         return v
 
@@ -55,13 +55,13 @@ class TodoCreate(BaseModel):
 class TodoUpdate(BaseModel):
     """Expected body for ``PATCH /api/todos/{id}``. Every field is optional."""
 
-    title: Optional[str] = Field(default=None, min_length=1, max_length=TITLE_MAX)
-    description: Optional[str] = Field(default=None, max_length=DESCRIPTION_MAX)
-    status: Optional[Status] = None
+    title: str | None = Field(default=None, min_length=1, max_length=TITLE_MAX)
+    description: str | None = Field(default=None, max_length=DESCRIPTION_MAX)
+    status: Status | None = None
 
     @field_validator("title")
     @classmethod
-    def title_not_blank(cls, v: Optional[str]) -> Optional[str]:
+    def title_not_blank(cls, v: str | None) -> str | None:
         if v is None:
             return None
         v = v.strip()
@@ -71,7 +71,7 @@ class TodoUpdate(BaseModel):
 
     @field_validator("description")
     @classmethod
-    def normalize_description(cls, v: Optional[str]) -> Optional[str]:
+    def normalize_description(cls, v: str | None) -> str | None:
         if v is None:
             return None
         return v.strip() or None
@@ -82,11 +82,11 @@ class TodoRead(BaseModel):
 
     id: int
     title: str
-    description: Optional[str]
+    description: str | None
     status: Status
     created_at: str
     updated_at: str
-    completed_at: Optional[str] = None
+    completed_at: str | None = None
 
 
 class TodoStats(BaseModel):

@@ -1,0 +1,54 @@
+[project]
+name = "task-manager"
+version = "1.0.0"
+description = "FastAPI + SQLite REST API with a Streamlit dashboard."
+requires-python = ">=3.12"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+# The API package lives at the repo root; the dashboard package (`app`) under
+# frontend/. Both must resolve as first-party for import sorting.
+src = [".", "frontend"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["api", "app"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "RUF", # ruff-specific
+]
+ignore = [
+    "E501",   # line length is the formatter's job; CSS-in-Python / prose docstrings exceed it
+    "UP047",  # PEP 695 generics: an explicit TypeVar is fine
+    "RUF001", # "ambiguous" Unicode (em dash, arrows, curly quotes) is intentional in UI copy
+    "RUF002",
+    "RUF003",
+]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency-injection markers are meant to be called in defaults.
+extend-immutable-calls = [
+    "fastapi.Query",
+    "fastapi.Path",
+    "fastapi.Header",
+    "fastapi.Depends",
+]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["api"]
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+
+[[tool.mypy.overrides]]
+module = ["uvicorn.*"]
+ignore_missing_imports = true

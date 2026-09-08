@@ -145,7 +145,11 @@ def test_stats_endpoint(client):
 
 
 def test_stats_endpoint_empty(client):
-    assert client.get("/api/todos/stats").json() == {"total": 0, "pending": 0, "done": 0}
+    assert client.get("/api/todos/stats").json() == {
+        "total": 0,
+        "pending": 0,
+        "done": 0,
+    }
 
 
 # --------------------------------------------------------------------------- #
