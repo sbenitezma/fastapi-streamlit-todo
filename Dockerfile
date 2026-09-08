@@ -1,7 +1,7 @@
 # Single image shared by both services (API and dashboard).
 # python:3.12-slim is used because wheels are guaranteed for every dependency
 # (fastapi, streamlit, pandas, numpy, pyarrow...).
-FROM python:3.12-slim
+FROM python:3.14-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
