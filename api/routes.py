@@ -1,20 +1,27 @@
 """Definition of the five task REST endpoints.
 
-Routes only orchestrate: they validate with the Pydantic models, call the helpers
-in :mod:`api.database` and turn missing data into clear ``HTTPException`` responses.
+Routes only orchestrate: they validate with the Pydantic models, delegate to a
+:class:`~api.todos_service.TodoService` (injected with ``Depends``) and let its
+domain errors bubble up -- ``api.main`` turns :class:`~api.todos_service.TodoNotFound`
+into a 404 and :class:`~api.todos_service.EmptyUpdate` into a 400.
 """
 
 from datetime import date
 from typing import Literal, Optional
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 
-from api import database
 from api.models import Status, TodoCreate, TodoRead, TodoStats, TodoUpdate
+from api.todos_service import TodoService
 
 router = APIRouter(prefix="/api", tags=["todos"])
 
 DateField = Literal["created", "updated", "completed"]
+
+
+def get_todo_service() -> TodoService:
+    """Provide a service bound to the shared repository (one per request)."""
+    return TodoService()
 
 
 @router.get("/todos", response_model=list[TodoRead])
@@ -35,6 +42,7 @@ def list_todos(
         description="Page size. Omit to return every match.",
     ),
     offset: int = Query(default=0, ge=0, description="Rows to skip (with limit)."),
+    service: TodoService = Depends(get_todo_service),
 ) -> list[dict]:
     """Return tasks.
 
@@ -42,55 +50,51 @@ def list_todos(
     ``date_to`` applied to ``date_field`` (``created``, ``updated`` or
     ``completed``), plus ``limit`` / ``offset`` paging. Malformed dates → 422.
     """
-    return database.list_todos(
+    return service.list_todos(
         status_filter, date_field, date_from, date_to, limit, offset
     )
 
 
 @router.get("/todos/stats", response_model=TodoStats)
-def todo_stats() -> dict:
+def todo_stats(service: TodoService = Depends(get_todo_service)) -> dict:
     """Total / pending / done counts for the whole table."""
-    return database.count_by_status()
+    return service.stats()
 
 
 @router.get("/todos/{todo_id}", response_model=TodoRead)
-def get_todo(todo_id: int) -> dict:
+def get_todo(
+    todo_id: int, service: TodoService = Depends(get_todo_service)
+) -> dict:
     """Return the details of a single task."""
-    todo = database.get_todo(todo_id)
-    if todo is None:
-        raise HTTPException(status_code=404, detail=f"No task with id {todo_id}")
-    return todo
+    return service.get_todo(todo_id)
 
 
 @router.post("/todos", response_model=TodoRead, status_code=status.HTTP_201_CREATED)
-def create_todo(payload: TodoCreate) -> dict:
+def create_todo(
+    payload: TodoCreate, service: TodoService = Depends(get_todo_service)
+) -> dict:
     """Create a new task.
 
     Title is mandatory; description and a (non-future) ``created_at`` date are
     optional.
     """
     created_at = payload.created_at.isoformat() if payload.created_at else None
-    return database.create_todo(payload.title, payload.description, created_at)
+    return service.create_todo(payload.title, payload.description, created_at)
 
 
 @router.patch("/todos/{todo_id}", response_model=TodoRead)
-def update_todo(todo_id: int, changes: TodoUpdate) -> dict:
+def update_todo(
+    todo_id: int,
+    changes: TodoUpdate,
+    service: TodoService = Depends(get_todo_service),
+) -> dict:
     """Update the title, description and/or status of an existing task."""
-    fields = changes.model_dump(exclude_unset=True)
-    if not fields:
-        raise HTTPException(
-            status_code=400,
-            detail="Send at least one field: title, description or status",
-        )
-
-    updated = database.update_todo(todo_id, fields)
-    if updated is None:
-        raise HTTPException(status_code=404, detail=f"No task with id {todo_id}")
-    return updated
+    return service.update_todo(todo_id, changes.model_dump(exclude_unset=True))
 
 
 @router.delete("/todos/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_todo(todo_id: int) -> None:
+def delete_todo(
+    todo_id: int, service: TodoService = Depends(get_todo_service)
+) -> None:
     """Delete a task. Returns 404 if it does not exist."""
-    if not database.delete_todo(todo_id):
-        raise HTTPException(status_code=404, detail=f"No task with id {todo_id}")
+    service.delete_todo(todo_id)

@@ -15,10 +15,11 @@ library on your machine. Once the containers are stopped, nothing is left instal
 ```
 proyecto_2/
 ├── api/
-│   ├── main.py        # FastAPI app + startup
-│   ├── routes.py      # the 5 endpoints
-│   ├── database.py    # SQLite access (connection, schema, CRUD)
-│   └── models.py      # Pydantic models (validation)
+│   ├── main.py           # FastAPI app + startup + domain-error handlers
+│   ├── routes.py         # the 5 endpoints (delegate to the service via Depends)
+│   ├── todos_service.py  # TodoRepository (all SQL) + TodoService (business rules)
+│   ├── database.py       # SQLite engine: connection, pragmas, schema
+│   └── models.py         # Pydantic models (validation)
 ├── frontend/
 │   ├── streamlit_app.py   # entry point: wires the modules together
 │   ├── component_library.py  # Storybook-style library -> `.\run.ps1 library`
