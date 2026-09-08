@@ -272,3 +272,7 @@ Deleting the `.venv` folder leaves the machine clean again.
 
 - `TODOS_DB` — path of the API's SQLite file (Docker sets it to `/app/data/todos.db`).
 - `API_URL` — base URL of the API used by the dashboard (Docker sets it to `http://api:8000/api`).
+
+## License
+
+MIT — see [LICENSE](LICENSE).
