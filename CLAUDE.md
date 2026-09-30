@@ -35,7 +35,8 @@ Everything runs in Docker; the host does not need the project's dependencies.
 - Python 3.12 (`requires-python`, Docker image, CI). The host interpreter may be
   newer: don't use syntax or stdlib APIs newer than 3.12.
 - ruff config in `pyproject.toml`. A PostToolUse hook (`.claude/hooks/ruff_on_edit.py`)
-  fixes and formats each edited `.py`; it needs `pip install ruff==0.16.6` on the host.
+  fixes and formats each edited `.py` with the ruff version pinned in
+  `requirements-dev.txt`, installing it into `.claude/.tools/` when the pin changes.
 - mypy covers `api/` only.
 - Coverage of `api/` must stay ≥ 90 %. New API behaviour needs tests in `tests/`
   (endpoint tests in `test_todos.py`, service/repository tests in

@@ -226,8 +226,9 @@ AI-assisted changes meet the same bar as CI:
 - **`CLAUDE.md`** — architecture, commands and the rules CI enforces.
 - **Hook** (`.claude/hooks/ruff_on_edit.py`) — every Python file Claude edits is
   fixed and formatted with the project's ruff config; anything ruff can't fix is
-  sent back to Claude to resolve. Needs `pip install ruff==0.16.6` on the host
-  and is a no-op without it.
+  sent back to Claude to resolve. It uses the ruff version pinned in
+  `requirements-dev.txt` and installs it into `.claude/.tools/` (git-ignored)
+  whenever Dependabot bumps the pin — nothing to install by hand.
 - **`/ci-local`** — runs the CI checks (ruff, mypy, pytest + coverage) in Docker.
 - **`/new-component`** — scaffolds a UI component with its story, tests and docs,
   following `frontend/dashboard/components/README.md`.

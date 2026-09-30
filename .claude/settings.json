@@ -8,7 +8,7 @@
           {
             "type": "command",
             "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/ruff_on_edit.py\"",
-            "timeout": 30
+            "timeout": 120
           }
         ]
       }
