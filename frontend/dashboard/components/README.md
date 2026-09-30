@@ -1,7 +1,7 @@
 # `dashboard/components` — UI component library
 
 Reusable, accessible render functions for the dashboard. **Not** web components —
-Streamlit functions composed from `st.*`. Live examples: `streamlit run frontend/gallery.py`.
+Streamlit functions composed from `st.*`. Live examples: `.\run.ps1 library` (or `make library`) → http://localhost:8502.
 
 ## Architecture
 
