@@ -49,11 +49,13 @@ proyecto_2/
 │   │   └── views/         # sidebar, summary, task_list composition
 │   └── tests/             # unit tests: api_client, formatting, tasks,
 │                          #             filtering, components, library
+├── .claude/           # Claude Code: ruff hook + /ci-local, /new-component skills
 ├── .streamlit/
 │   └── config.toml    # dashboard light & dark palettes, toolbar mode
 ├── tests/
 │   ├── conftest.py    # temporary database isolated per test
 │   └── test_todos.py  # >=1 test per endpoint
+├── CLAUDE.md          # project context for Claude Code sessions
 ├── Dockerfile
 ├── docker-compose.yml
 ├── run.ps1 / run.bat  # task runner for Windows (see below)
@@ -215,6 +217,23 @@ Config is in `pyproject.toml`. CI runs the same checks on every push and PR.
 
 **Dependabot** (`.github/dependabot.yml`) opens weekly grouped PRs for the pinned
 Python deps, the GitHub Actions and the Docker base image.
+
+## Working with Claude Code
+
+The repo ships a shared [Claude Code](https://claude.com/claude-code) setup, so
+AI-assisted changes meet the same bar as CI:
+
+- **`CLAUDE.md`** — architecture, commands and the rules CI enforces.
+- **Hook** (`.claude/hooks/ruff_on_edit.py`) — every Python file Claude edits is
+  fixed and formatted with the project's ruff config; anything ruff can't fix is
+  sent back to Claude to resolve. Needs `pip install ruff==0.16.6` on the host
+  and is a no-op without it.
+- **`/ci-local`** — runs the CI checks (ruff, mypy, pytest + coverage) in Docker.
+- **`/new-component`** — scaffolds a UI component with its story, tests and docs,
+  following `frontend/dashboard/components/README.md`.
+
+Changes under `.claude/` and to `CLAUDE.md` require owner review (`.github/CODEOWNERS`),
+since they run or instruct on the maintainer's machine.
 
 ## Endpoints
 
