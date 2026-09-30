@@ -347,9 +347,11 @@ This is a single-user tool that runs locally in Docker, and it is scoped to
 match:
 
 - **No authentication or authorization.** Every endpoint is open; anyone who can
-  reach `:8000` has full CRUD over every task. The dashboard talks to the API on
-  a private Docker network, and neither port needs to be published beyond
-  `localhost`.
+  reach `:8000` has full CRUD over every task. That is why every port is
+  published on `127.0.0.1` only (`docker-compose.yml`), and the non-Docker
+  entry points also listen on loopback: other machines on the same network
+  cannot reach the API or the dashboard. The dashboard talks to the API over
+  the private Docker network.
 - What *is* hardened: Pydantic rejects malformed input (`422`), every query is
   parameterised (no SQL injection), task text is HTML-escaped before rendering,
   `GET /api/todos` is always capped so it can't be used to exhaust memory, and

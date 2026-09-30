@@ -23,3 +23,8 @@ toolbarMode = "viewer"
 
 [browser]
 gatherUsageStats = false
+
+[server]
+# Local runs listen on loopback only. Docker overrides this with
+# --server.address 0.0.0.0 and publishes the port on 127.0.0.1 instead.
+address = "localhost"

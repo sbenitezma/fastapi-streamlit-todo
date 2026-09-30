@@ -6,6 +6,9 @@
 #                   `.\run.ps1 library` / `.\run.ps1 library-stop`)
 #
 # Everything runs inside containers: nothing is installed on your machine.
+# Ports are published on 127.0.0.1 only: the API has no authentication, so it
+# must not be reachable from other machines on the network. The services still
+# talk to each other over the internal Docker network.
 # "docker compose down" removes the processes and the libraries; the data
 # persists in the "todo-data" volume.
 
@@ -16,7 +19,7 @@ services:
     container_name: proyecto2-api
     command: python -m uvicorn api.main:app --host 0.0.0.0 --port 8000
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     environment:
       TODOS_DB: /app/data/todos.db
     volumes:
@@ -44,7 +47,7 @@ services:
     container_name: proyecto2-frontend
     command: python -m streamlit run frontend/streamlit_app.py --server.port 8501 --server.address 0.0.0.0 --server.headless true --browser.gatherUsageStats false
     ports:
-      - "8501:8501"
+      - "127.0.0.1:8501:8501"
     environment:
       API_URL: http://api:8000/api
     volumes:
@@ -62,7 +65,7 @@ services:
     profiles: ["library"]        # opt-in: `docker compose --profile library up -d library`
     command: python -m streamlit run frontend/component_library.py --server.port 8502 --server.address 0.0.0.0 --server.headless true --browser.gatherUsageStats false
     ports:
-      - "8502:8502"
+      - "127.0.0.1:8502:8502"
     volumes:
       - ./frontend:/app/frontend
       - ./.streamlit:/app/.streamlit
