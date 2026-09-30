@@ -1,0 +1,6 @@
+# Files that Claude Code executes or follows as instructions (hooks, skills,
+# project context) need the owner's review: a change here runs on the
+# maintainer's machine, not only in CI.
+/.claude/          @sbenitezma
+/CLAUDE.md         @sbenitezma
+/.github/          @sbenitezma

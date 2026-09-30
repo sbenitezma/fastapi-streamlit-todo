@@ -11,3 +11,7 @@ env/
 *.egg-info/
 .DS_Store
 data/
+
+# Claude Code: per-user local settings (the shared settings.json is committed)
+.claude/settings.local.json
+.claude/.tools/
